@@ -9,8 +9,7 @@ export default function Home() {
     const checkHealth = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-        const res = await fetch(`${apiUrl}/api/health`);
-        const data = await res.json();
+        await fetch(`${apiUrl}/api/health`);
         setStatus('API is healthy');
       } catch (error) {
         setStatus('API is unavailable');
