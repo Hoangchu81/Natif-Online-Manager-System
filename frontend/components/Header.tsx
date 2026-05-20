@@ -46,9 +46,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 rounded-lg bg-natif-blue flex items-center justify-center shadow-sm">
-              <span className="font-heading font-extrabold text-white text-sm tracking-tight">NT</span>
-            </div>
+            <img src="/natif-logo.svg" alt="NATIF" className="w-10 h-10 object-contain" />
             <div className="hidden sm:block">
               <div className="font-heading font-bold text-base text-gray-900 leading-tight">NATIF</div>
               <div className="text-[10px] text-gray-500 leading-tight tracking-wide">Quỹ ĐMCTQG</div>

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <defs>
+    <linearGradient id="orbitGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6FD33D"/>
+      <stop offset="100%" stop-color="#48C6EF"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1f3892"/>
+      <stop offset="100%" stop-color="#48C6EF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="#0a0a0a"/>
+
+  <!-- Orbit ellipse -->
+  <ellipse cx="200" cy="145" rx="160" ry="85"
+    fill="none"
+    stroke="url(#orbitGrad)"
+    stroke-width="1.5"
+    transform="rotate(-15, 200, 145)"
+    opacity="0.8"/>
+
+  <!-- Small orbit dots -->
+  <circle cx="48" cy="175" r="3" fill="#6FD33D" opacity="0.6"/>
+  <circle cx="352" cy="115" r="2" fill="#48C6EF" opacity="0.6"/>
+
+  <!-- Electron / planet circle on orbit -->
+  <circle cx="340" cy="125" r="12" fill="#48C6EF" opacity="0.9"/>
+
+  <!-- NATIF text -->
+  <text x="200" y="120"
+    text-anchor="middle"
+    font-family="'Plus Jakarta Sans', 'Arial Black', sans-serif"
+    font-weight="900"
+    font-size="72"
+    fill="url(#textGrad)"
+    letter-spacing="4">NATIF</text>
+
+  <!-- Full name -->
+  <text x="200" y="200"
+    text-anchor="middle"
+    font-family="'Plus Jakarta Sans', 'Arial', sans-serif"
+    font-weight="700"
+    font-size="11.5"
+    fill="#48C6EF"
+    letter-spacing="3.5">NATIONAL TECHNOLOGY INNOVATION FOUNDATION</text>
+</svg>

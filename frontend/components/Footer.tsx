@@ -52,9 +52,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
-                <span className="font-heading font-extrabold text-natif-blue text-sm">NT</span>
-              </div>
+              <img src="/natif-logo.svg" alt="NATIF" className="w-10 h-10 object-contain" />
               <div>
                 <div className="font-heading font-bold text-white text-base">NATIF</div>
                 <div className="text-[10px] text-gray-500 tracking-wide">Quỹ ĐMCTQG</div>
@@ -67,11 +65,11 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3">
               {[
-                { label: 'Facebook', icon: 'M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z' },
-                { label: 'LinkedIn', icon: 'M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z M4 6a2 2 0 100-4 2 2 0 000 4z' },
-                { label: 'YouTube', icon: 'M23 7l-2 4-2-1-3-1v6l3-1 2-4 2 1 2 4 2-4z M17 7v8a3 3 0 003 3 3 3 0 003-3V7a3 3 0 00-6 0v8a3 3 0 003 3 3 3 0 003-3z' },
+                { label: 'Facebook', href: 'https://www.facebook.com/natif.vn', icon: 'M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z' },
+                { label: 'LinkedIn', href: '#', icon: 'M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z M4 6a2 2 0 100-4 2 2 0 000 4z' },
+                { label: 'YouTube', href: '#', icon: 'M23 7l-2 4-2-1-3-1v6l3-1 2-4 2 1 2 4 2-4z M17 7v8a3 3 0 003 3 3 3 0 003-3V7a3 3 0 00-6 0v8a3 3 0 003 3 3 3 0 003-3z' },
               ].map((social) => (
-                <a key={social.label} href="#" aria-label={social.label}
+                <a key={social.label} href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}
                   className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-natif-blue flex items-center justify-center transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d={social.icon} />

@@ -52,9 +52,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-natif-blue flex items-center justify-center">
-              <span className="font-heading font-extrabold text-white text-lg">NT</span>
-            </div>
+            <img src="/natif-logo.svg" alt="NATIF" className="w-12 h-12 object-contain" />
           </Link>
           <h1 className="font-heading font-bold text-2xl text-gray-900">Đăng nhập</h1>
           <p className="text-gray-500 text-sm mt-1">Hệ thống Quản lý Trực tuyến NATIF</p>
