@@ -30,7 +30,7 @@ export async function register(req: Request, res: Response) {
   );
 
   const user = result.rows[0];
-  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: 7 * 24 * 60 * 60 });
 
   res.status(201).json({ token, user });
 }
@@ -53,7 +53,7 @@ export async function login(req: Request, res: Response) {
     return res.status(401).json({ error: 'Email hoặc mật khẩu không đúng' });
   }
 
-  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: 7 * 24 * 60 * 60 });
 
   res.json({
     token,
