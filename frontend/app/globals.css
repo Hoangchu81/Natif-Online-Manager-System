@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Merriweather:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,5 +9,221 @@ html {
 }
 
 body {
-  @apply bg-white text-gray-900;
+  @apply bg-gray-50 text-gray-900 font-body antialiased;
+}
+
+/* Government institutional typography */
+.font-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-serif-body {
+  font-family: 'Merriweather', Georgia, serif;
+}
+
+/* Nav styles */
+.nav-link {
+  @apply px-4 py-2 text-sm font-medium text-gray-600 hover:text-natif-blue transition-colors duration-200 rounded-md hover:bg-blue-50;
+}
+
+.nav-link-active {
+  @apply text-natif-blue bg-blue-50 font-semibold;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 shadow-sm;
+  background-color: #1f3892;
+}
+
+.btn-primary:hover {
+  background-color: #163075;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(31, 56, 146, 0.3);
+}
+
+.btn-secondary {
+  @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold border-2 transition-all duration-200;
+  border-color: #1f3892;
+  color: #1f3892;
+}
+
+.btn-secondary:hover {
+  background-color: #1f3892;
+  color: white;
+}
+
+.btn-accent {
+  @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200;
+  background: linear-gradient(135deg, #48C6EF 0%, #6FD33D 100%);
+}
+
+.btn-accent:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Card styles */
+.card {
+  @apply bg-white rounded-xl border border-gray-200 p-6 transition-all duration-200;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  transform: translateY(-2px);
+}
+
+.card-flat {
+  @apply bg-white rounded-xl border border-gray-200 p-6;
+}
+
+/* Section styles */
+.section-title {
+  @apply font-heading font-bold text-3xl md:text-4xl text-gray-900 mb-3;
+}
+
+.section-subtitle {
+  @apply text-gray-500 text-lg max-w-2xl;
+}
+
+/* Badge styles */
+.badge {
+  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-blue {
+  background-color: #EBF4FF;
+  color: #1f3892;
+}
+
+.badge-green {
+  background-color: #ECFDF5;
+  color: #059669;
+}
+
+.badge-amber {
+  background-color: #FFFBEB;
+  color: #D97706;
+}
+
+.badge-red {
+  background-color: #FEF2F2;
+  color: #DC2626;
+}
+
+.badge-cyan {
+  background-color: #ECFEFF;
+  color: #0891B2;
+}
+
+/* Status pills */
+.status-draft { @apply bg-gray-100 text-gray-600; }
+.status-submitted { @apply bg-amber-50 text-amber-700; }
+.status-reviewing { @apply bg-blue-50 text-blue-700; }
+.status-approved { @apply bg-green-50 text-green-700; }
+.status-rejected { @apply bg-red-50 text-red-700; }
+
+/* Form styles */
+.form-input {
+  @apply w-full px-4 py-2.5 rounded-lg border border-gray-300 text-gray-900 text-sm transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-natif-blue/30 focus:border-natif-blue;
+}
+
+.form-input::placeholder {
+  @apply text-gray-400;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1.5;
+}
+
+.form-error {
+  @apply text-red-600 text-xs mt-1;
+}
+
+/* Gradient text */
+.text-gradient-blue {
+  background: linear-gradient(135deg, #1f3892 0%, #48C6EF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Wave divider */
+.wave-divider {
+  position: relative;
+  overflow: hidden;
+}
+
+.wave-divider::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%23f8fafc' d='M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,60 L0,60 Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Government blue gradient */
+.bg-gov-gradient {
+  background: linear-gradient(135deg, #1f3892 0%, #2b5ab5 50%, #1f3892 100%);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-400 { animation-delay: 400ms; }
+
+/* Table styles */
+.data-table {
+  @apply w-full text-sm;
+}
+
+.data-table thead {
+  @apply bg-gray-50 border-b border-gray-200;
+}
+
+.data-table th {
+  @apply px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider;
+}
+
+.data-table td {
+  @apply px-4 py-3 border-b border-gray-100;
+}
+
+.data-table tbody tr:hover {
+  @apply bg-blue-50/30;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
 }
