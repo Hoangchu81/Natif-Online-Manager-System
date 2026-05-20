@@ -17,7 +17,31 @@ export default function RegisterPage() {
     if (form.password !== form.confirmPassword) { setError('Mật khẩu xác nhận không khớp'); return; }
     setError('');
     setLoading(true);
-    setTimeout(() => { router.push('/login?registered=true'); }, 1000);
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          full_name: form.full_name,
+          phone: form.phone,
+          company: form.company,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Đăng ký thất bại');
+        setLoading(false);
+        return;
+      }
+      router.push('/login?registered=true');
+    } catch {
+      setError('Không thể kết nối máy chủ. Vui lòng thử lại.');
+      setLoading(false);
+    }
   };
 
   return (

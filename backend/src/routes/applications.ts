@@ -85,7 +85,7 @@ export async function createApplication(req: AuthRequest, res: Response) {
       (user_id, program_type, company_name, tax_code, contact_name, contact_email, contact_phone, title, description, budget_requested, status)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'draft')
      RETURNING *`,
-    [req.userId, program_type, company_name, tax_code, contact_name, contact_email, contact_phone || '', title, description || '', budget_requested]
+    [req.userId || null, program_type, company_name, tax_code, contact_name, contact_email, contact_phone || '', title, description || '', budget_requested]
   );
 
   res.status(201).json(result.rows[0]);

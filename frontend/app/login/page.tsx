@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/AuthProvider';
+import { setToken, setUser } from '@/lib/auth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,14 +18,32 @@ export default function LoginPage() {
     if (!form.email || !form.password) { setError('Vui lòng nhập email và mật khẩu'); return; }
     setError('');
     setLoading(true);
-    // Simulate login - in production would call API
-    setTimeout(() => {
-      if (form.email === 'admin@natif.gov.vn') {
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Đăng nhập thất bại');
+        setLoading(false);
+        return;
+      }
+      setToken(data.token);
+      setUser(data.user);
+      login(data.token, data.user);
+      if (data.user.role === 'admin') {
         router.push('/admin');
       } else {
         router.push('/');
       }
-    }, 1000);
+    } catch {
+      setError('Không thể kết nối máy chủ. Vui lòng thử lại.');
+      setLoading(false);
+    }
   };
 
   return (

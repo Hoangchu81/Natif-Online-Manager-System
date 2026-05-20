@@ -44,14 +44,14 @@ app.get('/api/profile', authenticate, authRoutes.getProfile);
 app.put('/api/profile', authenticate, authRoutes.updateProfile);
 app.get('/api/applications', authenticate, applicationRoutes.getApplications);
 app.get('/api/applications/:id', authenticate, applicationRoutes.getApplication);
-app.post('/api/applications', authenticate, applicationRoutes.createApplication);
+app.post('/api/applications', applicationRoutes.createApplication);
 app.put('/api/applications/:id', authenticate, applicationRoutes.updateApplication);
 app.delete('/api/applications/:id', authenticate, applicationRoutes.deleteApplication);
 app.post('/api/applications/:id/submit', authenticate, applicationRoutes.submitApplication);
 app.get('/api/user/stats', authenticate, dashboardRoutes.getUserStats);
 
 // Protected routes - admin
-app.get('/api/admin/dashboard', authenticate, dashboardRoutes.getDashboardStats);
+app.get('/api/dashboard/stats', authenticate, dashboardRoutes.getDashboardStats);
 
 // 404
 app.use((_req, res) => {
