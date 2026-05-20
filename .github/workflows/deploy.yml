@@ -1,0 +1,62 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  VPS_HOST: ${{ secrets.VPS_HOST }}
+  VPS_USER: ${{ secrets.VPS_USER }}
+  VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+  VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+  DEPLOY_PATH: /opt/natif-online-manager
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ env.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ env.VPS_PORT }} ${{ env.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy code
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'EOF'
+          # Navigate to project directory
+          cd ${{ env.DEPLOY_PATH }}
+
+          # Pull latest code
+          git pull origin main
+
+          # Install dependencies
+          cd backend && npm ci && cd ..
+          cd frontend && npm ci && cd ..
+
+          # Build frontend
+          cd frontend && npm run build && cd ..
+
+          # Build backend
+          cd backend && npm run build && cd ..
+
+          # Restart services using PM2 or systemd
+          pm2 restart natif-backend natif-frontend || systemctl restart natif-backend natif-frontend
+          EOF
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'EOF'
+          # Check if services are running
+          curl -f http://localhost:3001/api/health || exit 1
+          EOF
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
