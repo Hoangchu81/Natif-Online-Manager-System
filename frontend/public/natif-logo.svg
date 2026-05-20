@@ -1,48 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
   <defs>
     <linearGradient id="orbitGrad" x1="0%" y1="100%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#6FD33D"/>
-      <stop offset="100%" stop-color="#48C6EF"/>
+      <stop offset="100%" stop-color="#00C9FF"/>
     </linearGradient>
     <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#1f3892"/>
-      <stop offset="100%" stop-color="#48C6EF"/>
+      <stop offset="100%" stop-color="#2B5FCD"/>
     </linearGradient>
   </defs>
 
-  <!-- Background -->
-  <rect width="400" height="300" fill="#0a0a0a"/>
+  <!-- White background for visibility on dark themes -->
+  <rect width="600" height="400" fill="white" rx="0"/>
 
   <!-- Orbit ellipse -->
-  <ellipse cx="200" cy="145" rx="160" ry="85"
+  <ellipse cx="290" cy="175" rx="210" ry="110"
     fill="none"
     stroke="url(#orbitGrad)"
-    stroke-width="1.5"
-    transform="rotate(-15, 200, 145)"
-    opacity="0.8"/>
+    stroke-width="2"
+    transform="rotate(-15, 290, 175)"
+    opacity="0.85"/>
 
-  <!-- Small orbit dots -->
-  <circle cx="48" cy="175" r="3" fill="#6FD33D" opacity="0.6"/>
-  <circle cx="352" cy="115" r="2" fill="#48C6EF" opacity="0.6"/>
-
-  <!-- Electron / planet circle on orbit -->
-  <circle cx="340" cy="125" r="12" fill="#48C6EF" opacity="0.9"/>
+  <!-- Electron / planet on orbit (upper right) -->
+  <circle cx="490" cy="115" r="14" fill="#00C9FF" opacity="0.95"/>
 
   <!-- NATIF text -->
-  <text x="200" y="120"
+  <text x="300" y="145"
     text-anchor="middle"
     font-family="'Plus Jakarta Sans', 'Arial Black', sans-serif"
     font-weight="900"
-    font-size="72"
+    font-size="88"
     fill="url(#textGrad)"
-    letter-spacing="4">NATIF</text>
+    letter-spacing="6">NATIF</text>
 
-  <!-- Full name -->
-  <text x="200" y="200"
+  <!-- Vietnamese full name -->
+  <text x="300" y="205"
     text-anchor="middle"
     font-family="'Plus Jakarta Sans', 'Arial', sans-serif"
-    font-weight="700"
-    font-size="11.5"
-    fill="#48C6EF"
-    letter-spacing="3.5">NATIONAL TECHNOLOGY INNOVATION FOUNDATION</text>
+    font-weight="600"
+    font-size="15"
+    fill="#00C9FF"
+    letter-spacing="2">QUỸ ĐỔI MỚI CÔNG NGHỆ QUỐC GIA</text>
 </svg>
