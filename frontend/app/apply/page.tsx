@@ -149,6 +149,31 @@ interface FormData {
   task_methodology: string;
   org_description: string;
   org_experience: string;
+  // S&T task details (Nghị định 68/2025 - Phụ lục I)
+  task_category: string;         // Loại nhiệm vụ S&T
+  task_class_code: string;       // Mã số theo danh mục NV
+  task_type: string;             // Nghiên cứu / Ứng dụng / Tổng hợp
+  expected_products: string;     // Sản phẩm dự kiến
+  deliverables_description: string; // Mô tả sản phẩm chi tiết
+  work_packages: string;          // Các gói công việc
+  research_method: string;       // Phương pháp nghiên cứu
+  hr_involvement: string;       // Nhân lực tham gia
+  hr_qualification: string;      // Trình độ chuyên môn
+  equipment_needed: string;      // Thiết bị cần thiết
+  materials_budget: string;      // Vật tư, nguyên liệu
+  budget_category_1: string;    // Chi phí nhân lực
+  budget_category_2: string;    // Chi phí nguyên liệu
+  budget_category_3: string;    // Chi phí thiết bị
+  budget_category_4: string;    // Chi phí dịch vụ
+  budget_category_5: string;    // Chi phí khác
+  budget_total: string;         // Tổng chi phí
+  funding_own: string;          // Vốn tự có
+  funding_other: string;         // Nguồn khác (ghi rõ)
+  ip_ownership: string;         // Sở hữu trí tuệ
+  ip_sharing: string;           // Chia sẻ quyền SHTT
+  commercialization: string;     // Thương mại hóa
+  expected_impact: string;       // Tác động dự kiến
+  science_indicators: string;   // Chỉ tiêu khoa học
   // Voucher specific
   service_type: string;
   service_provider: string;
@@ -191,6 +216,11 @@ const initialForm: FormData = {
   expected_revenue_y3: '', expected_profit_y1: '', expected_profit_y2: '', expected_profit_y3: '', payback_period: '',
   economic_impact: '', social_impact: '', implementation_milestones: '', technical_capacity: '', commitment_content: '',
   task_location: '', task_methodology: '', org_description: '', org_experience: '',
+  task_category: '', task_class_code: '', task_type: '', expected_products: '', deliverables_description: '',
+  work_packages: '', research_method: '', hr_involvement: '', hr_qualification: '', equipment_needed: '',
+  materials_budget: '', budget_category_1: '', budget_category_2: '', budget_category_3: '',
+  budget_category_4: '', budget_category_5: '', budget_total: '', funding_own: '', funding_other: '',
+  ip_ownership: '', ip_sharing: '', commercialization: '', expected_impact: '', science_indicators: '',
   service_type: '', service_provider: '', provider_contact: '', service_cost: '', commitment_use: '',
   activities_description: '', activities_results: '', org_recognition_type: '',
   doc_dkkd: false, doc_id_copy: false, doc_financial_report: false, doc_credit_contract: false,
@@ -263,6 +293,17 @@ export default function ApplyPage() {
     }
     if (form.program_type === 'ecosystem') {
       if (!form.activities_description.trim()) e.activities_description = 'Mô tả hoạt động là bắt buộc';
+    }
+    if (form.program_type === 'sponsorship') {
+      if (!form.task_category.trim()) e.task_category = 'Loại nhiệm vụ S&T là bắt buộc';
+      if (!form.expected_products.trim()) e.expected_products = 'Sản phẩm dự kiến là bắt buộc';
+      if (!form.deliverables_description.trim()) e.deliverables_description = 'Mô tả sản phẩm chi tiết là bắt buộc';
+      if (!form.work_packages.trim()) e.work_packages = 'Các gói công việc là bắt buộc';
+      if (!form.hr_involvement.trim()) e.hr_involvement = 'Nhân lực tham gia là bắt buộc';
+      if (!form.budget_category_1.trim()) e.budget_category_1 = 'Chi phí nhân lực là bắt buộc';
+      if (!form.budget_category_2.trim()) e.budget_category_2 = 'Chi phí nguyên liệu là bắt buộc';
+      if (!form.budget_category_3.trim()) e.budget_category_3 = 'Chi phí thiết bị là bắt buộc';
+      if (!form.ip_ownership.trim()) e.ip_ownership = 'Sở hữu trí tuệ là bắt buộc';
     }
     setErrors(prev => ({ ...prev, ...e }));
     return Object.keys(e).length === 0;
@@ -357,6 +398,18 @@ export default function ApplyPage() {
         // Sponsorship
         task_location: form.task_location, task_methodology: form.task_methodology,
         org_description: form.org_description, org_experience: form.org_experience,
+        task_category: form.task_category, task_class_code: form.task_class_code, task_type: form.task_type,
+        expected_products: form.expected_products, deliverables_description: form.deliverables_description,
+        work_packages: form.work_packages, research_method: form.research_method,
+        hr_involvement: form.hr_involvement, hr_qualification: form.hr_qualification,
+        equipment_needed: form.equipment_needed, materials_budget: form.materials_budget,
+        budget_category_1: form.budget_category_1, budget_category_2: form.budget_category_2,
+        budget_category_3: form.budget_category_3, budget_category_4: form.budget_category_4,
+        budget_category_5: form.budget_category_5, budget_total: form.budget_total,
+        funding_own: form.funding_own, funding_other: form.funding_other,
+        ip_ownership: form.ip_ownership, ip_sharing: form.ip_sharing,
+        commercialization: form.commercialization, expected_impact: form.expected_impact,
+        science_indicators: form.science_indicators,
         // Voucher
         service_type: form.service_type, service_provider: form.service_provider,
         provider_contact: form.provider_contact, service_cost: form.service_cost, commitment_use: form.commitment_use,
@@ -947,56 +1000,290 @@ export default function ApplyPage() {
                       {/* Sponsorship */}
                       {form.program_type === 'sponsorship' && (
                         <div className="space-y-4">
-                          <div>
-                            <label className="form-label">Tên nhiệm vụ KH&CN <span className="text-red-500">*</span></label>
-                            <input type="text" value={form.project_name} onChange={e => set('project_name', e.target.value)}
-                              className="form-input" placeholder="Nghiên cứu ứng dụng AI trong sản xuất thông minh" />
+                          {/* A. Thông tin nhiệm vụ S&T */}
+                          <div className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                            <h4 className="font-heading font-semibold text-sm text-green-800 mb-4 flex items-center gap-2">
+                              <span className="w-6 h-6 rounded bg-green-600 text-white text-xs flex items-center justify-center font-bold">A</span>
+                              Thông tin nhiệm vụ khoa học và công nghệ — Nghị định 68/2025/NĐ-CP (Phụ lục I)
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="form-label">Tên nhiệm vụ KH&CN <span className="text-red-500">*</span></label>
+                                <input type="text" value={form.project_name} onChange={e => set('project_name', e.target.value)}
+                                  className="form-input" placeholder="Nghiên cứu ứng dụng AI trong sản xuất thông minh" />
+                              </div>
+                              <div>
+                                <label className="form-label">Loại nhiệm vụ S&T <span className="text-red-500">*</span></label>
+                                <select value={form.task_category} onChange={e => set('task_category', e.target.value)} className="form-input">
+                                  <option value="">-- Chọn loại nhiệm vụ --</option>
+                                  <option value="nc_coban">Nghiên cứu cơ bản</option>
+                                  <option value="nc_ungdung">Nghiên cứu ứng dụng</option>
+                                  <option value="nc_thuchien">Nghiên cứu triển khai thực hiện</option>
+                                  <option value="pilot">Thử nghiệm, pilot</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="form-label">Mã số danh mục nhiệm vụ</label>
+                                <input type="text" value={form.task_class_code} onChange={e => set('task_class_code', e.target.value)}
+                                  className="form-input" placeholder="NV-2026-XXX" />
+                              </div>
+                              <div>
+                                <label className="form-label">Loại hình nghiên cứu</label>
+                                <select value={form.task_type} onChange={e => set('task_type', e.target.value)} className="form-input">
+                                  <option value="">-- Chọn --</option>
+                                  <option value="nc">Nghiên cứu</option>
+                                  <option value="ungdung">Ứng dụng</option>
+                                  <option value="tonghop">Tổng hợp</option>
+                                  <option value="tuvan">Tư vấn</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="form-label">Địa điểm thực hiện</label>
+                                <input type="text" value={form.task_location} onChange={e => set('task_location', e.target.value)}
+                                  className="form-input" placeholder="TP. Hồ Chí Minh / Địa chỉ cụ thể" />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <label className="form-label">Địa điểm thực hiện</label>
-                            <input type="text" value={form.task_location} onChange={e => set('task_location', e.target.value)}
-                              className="form-input" placeholder="TP. Hồ Chí Minh" />
+
+                          {/* B. Sản phẩm và gói công việc */}
+                          <div className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                            <h4 className="font-heading font-semibold text-sm text-green-800 mb-4 flex items-center gap-2">
+                              <span className="w-6 h-6 rounded bg-green-600 text-white text-xs flex items-center justify-center font-bold">B</span>
+                              Sản phẩm, kết quả dự kiến và gói công việc
+                            </h4>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="form-label">Sản phẩm dự kiến <span className="text-red-500">*</span></label>
+                                <textarea rows={3} value={form.expected_products} onChange={e => set('expected_products', e.target.value)}
+                                  className={`form-input resize-none ${errors.expected_products ? 'border-red-400' : ''}`}
+                                  placeholder="VD: Báo cáo tổng hợp kết quả nghiên cứu; Tài liệu kỹ thuật; Phần mềm; Mô hình thử nghiệm..." />
+                                {errors.expected_products && <p className="form-error">{errors.expected_products}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Mô tả sản phẩm chi tiết <span className="text-red-500">*</span></label>
+                                <textarea rows={4} value={form.deliverables_description} onChange={e => set('deliverables_description', e.target.value)}
+                                  className={`form-input resize-none ${errors.deliverables_description ? 'border-red-400' : ''}`}
+                                  placeholder="Mô tả chi tiết từng sản phẩm, kết quả nghiên cứu cụ thể, chỉ tiêu định lượng (nếu có)..." />
+                                {errors.deliverables_description && <p className="form-error">{errors.deliverables_description}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Các gói công việc <span className="text-red-500">*</span></label>
+                                <textarea rows={4} value={form.work_packages} onChange={e => set('work_packages', e.target.value)}
+                                  className={`form-input resize-none ${errors.work_packages ? 'border-red-400' : ''}`}
+                                  placeholder="Gói 1 (tháng 1-3): Khảo sát, thu thập dữ liệu&#10;Gói 2 (tháng 4-8): Phân tích, thiết kế&#10;Gói 3 (tháng 9-12): Triển khai, thử nghiệm&#10;Gói 4 (tháng 13-15): Tổng kết, nghiệm thu" />
+                                {errors.work_packages && <p className="form-error">{errors.work_packages}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Chỉ tiêu khoa học dự kiến</label>
+                                <textarea rows={2} value={form.science_indicators} onChange={e => set('science_indicators', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="VD: 01 bài báo quốc tế indexed Scopus; 02 báo cáo khoa học; 01 patent..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Phương pháp nghiên cứu</label>
+                                <textarea rows={2} value={form.research_method} onChange={e => set('research_method', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="VD: Phương pháp khảo sát, phân tích SWOT, mô hình hóa..." />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <label className="form-label">Mục tiêu nhiệm vụ <span className="text-red-500">*</span></label>
-                            <textarea rows={3} value={form.project_objectives} onChange={e => set('project_objectives', e.target.value)}
-                              className="form-input resize-none" placeholder="Mục tiêu chính và các mục tiêu cụ thể..." />
+
+                          {/* C. Nhân lực và thiết bị */}
+                          <div className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                            <h4 className="font-heading font-semibold text-sm text-green-800 mb-4 flex items-center gap-2">
+                              <span className="w-6 h-6 rounded bg-green-600 text-white text-xs flex items-center justify-center font-bold">C</span>
+                              Nhân lực và thiết bị
+                            </h4>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="form-label">Nhân lực tham gia thực hiện nhiệm vụ <span className="text-red-500">*</span></label>
+                                <textarea rows={3} value={form.hr_involvement} onChange={e => set('hr_involvement', e.target.value)}
+                                  className={`form-input resize-none ${errors.hr_involvement ? 'border-red-400' : ''}`}
+                                  placeholder="Chủ nhiệm: PGS.TS Nguyễn Văn A (10% time)&#10;Thư ký: ThS. Trần Thị B (50% time)&#10;Cộng tác viên: KS. Lê Văn C (30% time)" />
+                                {errors.hr_involvement && <p className="form-error">{errors.hr_involvement}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Trình độ chuyên môn của nhóm nghiên cứu</label>
+                                <textarea rows={2} value={form.hr_qualification} onChange={e => set('hr_qualification', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="VD: 02 tiến sĩ, 03 thạc sĩ, 05 kỹ sư; trung bình 8 năm kinh nghiệm trong lĩnh vực..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Thiết bị, vật tư cần thiết</label>
+                                <textarea rows={2} value={form.equipment_needed} onChange={e => set('equipment_needed', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="VD: Máy tính chuyên dụng, phần mềm phân tích, thiết bị đo lường..." />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <label className="form-label">Nội dung nhiệm vụ <span className="text-red-500">*</span></label>
-                            <textarea rows={4} value={form.project_content} onChange={e => set('project_content', e.target.value)}
-                              className="form-input resize-none" placeholder="Mô tả chi tiết các nội dung thực hiện..." />
+
+                          {/* D. Dự toán kinh phí */}
+                          <div className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                            <h4 className="font-heading font-semibold text-sm text-green-800 mb-4 flex items-center gap-2">
+                              <span className="w-6 h-6 rounded bg-green-600 text-white text-xs flex items-center justify-center font-bold">D</span>
+                              Dự toán kinh phí — Theo Thông tư 40/2024/TT-BKH&CN
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="form-label">Chi phí nhân lực (NVL) <span className="text-red-500">*</span></label>
+                                <input type="number" value={form.budget_category_1} onChange={e => set('budget_category_1', e.target.value)}
+                                  className={`form-input ${errors.budget_category_1 ? 'border-red-400' : ''}`}
+                                  placeholder="200000000" min="0" step="1000000" />
+                                {errors.budget_category_1 && <p className="form-error">{errors.budget_category_1}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Chi phí nguyên liệu, vật tư, năng lượng <span className="text-red-500">*</span></label>
+                                <input type="number" value={form.budget_category_2} onChange={e => set('budget_category_2', e.target.value)}
+                                  className={`form-input ${errors.budget_category_2 ? 'border-red-400' : ''}`}
+                                  placeholder="50000000" min="0" step="1000000" />
+                                {errors.budget_category_2 && <p className="form-error">{errors.budget_category_2}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Chi phí máy móc, thiết bị, công nghệ <span className="text-red-500">*</span></label>
+                                <input type="number" value={form.budget_category_3} onChange={e => set('budget_category_3', e.target.value)}
+                                  className={`form-input ${errors.budget_category_3 ? 'border-red-400' : ''}`}
+                                  placeholder="150000000" min="0" step="1000000" />
+                                {errors.budget_category_3 && <p className="form-error">{errors.budget_category_3}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Chi phí dịch vụ, tư vấn, chuyển giao</label>
+                                <input type="number" value={form.budget_category_4} onChange={e => set('budget_category_4', e.target.value)}
+                                  className="form-input" placeholder="50000000" min="0" step="1000000" />
+                              </div>
+                              <div>
+                                <label className="form-label">Chi phí khác (đi công tác, hội nghị...)</label>
+                                <input type="number" value={form.budget_category_5} onChange={e => set('budget_category_5', e.target.value)}
+                                  className="form-input" placeholder="30000000" min="0" step="1000000" />
+                              </div>
+                              <div>
+                                <label className="form-label">Tổng dự toán (VNĐ)</label>
+                                <input type="number" value={form.budget_total} onChange={e => set('budget_total', e.target.value)}
+                                  className="form-input" placeholder="480000000" min="0" step="1000000" />
+                                {form.budget_category_1 && form.budget_category_2 && form.budget_category_3 && (
+                                  <p className="text-xs text-green-600 mt-1">
+                                    Tạm tính: {(() => {
+                                      const c1 = Number(form.budget_category_1) || 0;
+                                      const c2 = Number(form.budget_category_2) || 0;
+                                      const c3 = Number(form.budget_category_3) || 0;
+                                      const c4 = Number(form.budget_category_4) || 0;
+                                      const c5 = Number(form.budget_category_5) || 0;
+                                      return formatCurrency(c1 + c2 + c3 + c4 + c5);
+                                    })()} VNĐ
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                              <div>
+                                <label className="form-label">Nguồn vốn tự có của tổ chức/cá nhân (VNĐ)</label>
+                                <input type="number" value={form.funding_own} onChange={e => set('funding_own', e.target.value)}
+                                  className="form-input" placeholder="48000000" min="0" step="1000000" />
+                              </div>
+                              <div>
+                                <label className="form-label">Nguồn khác (ghi rõ nguồn)</label>
+                                <input type="text" value={form.funding_other} onChange={e => set('funding_other', e.target.value)}
+                                  className="form-input" placeholder="Vốn vay, đối tác..." />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <label className="form-label">Phương pháp thực hiện</label>
-                            <textarea rows={3} value={form.task_methodology} onChange={e => set('task_methodology', e.target.value)}
-                              className="form-input resize-none" placeholder="Phương pháp và cách thức thực hiện..." />
+
+                          {/* E. Mục tiêu, hiệu quả */}
+                          <div className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                            <h4 className="font-heading font-semibold text-sm text-green-800 mb-4 flex items-center gap-2">
+                              <span className="w-6 h-6 rounded bg-green-600 text-white text-xs flex items-center justify-center font-bold">E</span>
+                              Mục tiêu, hiệu quả và tác động
+                            </h4>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="form-label">Mục tiêu nhiệm vụ <span className="text-red-500">*</span></label>
+                                <textarea rows={3} value={form.project_objectives} onChange={e => set('project_objectives', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Mục tiêu tổng quát và các mục tiêu cụ thể cần đạt được..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Nội dung nhiệm vụ <span className="text-red-500">*</span></label>
+                                <textarea rows={4} value={form.project_content} onChange={e => set('project_content', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Mô tả chi tiết các nội dung, phạm vi nghiên cứu, phương pháp tiếp cận..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Phương pháp thực hiện</label>
+                                <textarea rows={2} value={form.task_methodology} onChange={e => set('task_methodology', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Các phương pháp nghiên cứu cụ thể sẽ áp dụng..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Tác động dự kiến</label>
+                                <textarea rows={2} value={form.expected_impact} onChange={e => set('expected_impact', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Tác động kinh tế, xã hội, công nghệ dự kiến..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Kết quả dự kiến</label>
+                                <textarea rows={2} value={form.economic_impact} onChange={e => set('economic_impact', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Sản phẩm, chỉ tiêu kinh tế-xã hội dự kiến..." />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <label className="form-label">Giới thiệu tổ chức/cá nhân</label>
-                            <textarea rows={3} value={form.org_description} onChange={e => set('org_description', e.target.value)}
-                              className="form-input resize-none" placeholder="Lịch sử, năng lực, kinh nghiệm..." />
+
+                          {/* F. Sở hữu trí tuệ & Thương mại hóa */}
+                          <div className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                            <h4 className="font-heading font-semibold text-sm text-green-800 mb-4 flex items-center gap-2">
+                              <span className="w-6 h-6 rounded bg-green-600 text-white text-xs flex items-center justify-center font-bold">F</span>
+                              Sở hữu trí tuệ và thương mại hóa
+                            </h4>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="form-label">Phương án sở hữu trí tuệ <span className="text-red-500">*</span></label>
+                                <select value={form.ip_ownership} onChange={e => set('ip_ownership', e.target.value)} className="form-input">
+                                  <option value="">-- Chọn phương án --</option>
+                                  <option value="org_owned">Thuộc sở hữu của tổ chức/cá nhân nhận tài trợ</option>
+                                  <option value="shared">Chia sẻ quyền sở hữu với Quỹ NATIF</option>
+                                  <option value="natif_owned">Thuộc sở hữu của Quỹ NATIF</option>
+                                  <option value="public">Công khai, không độc quyền</option>
+                                </select>
+                                {errors.ip_ownership && <p className="form-error">{errors.ip_ownership}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Phương án chia sẻ quyền SHTT (nếu có)</label>
+                                <textarea rows={2} value={form.ip_sharing} onChange={e => set('ip_sharing', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Chi tiết phương án chia sẻ quyền sở hữu trí tuệ với các bên liên quan..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Kế hoạch thương mại hóa (nếu có)</label>
+                                <textarea rows={3} value={form.commercialization} onChange={e => set('commercialization', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Kế hoạch đưa sản phẩm nghiên cứu vào ứng dụng thực tế, thị trường tiềm năng..." />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <label className="form-label">Kinh nghiệm liên quan</label>
-                            <textarea rows={3} value={form.org_experience} onChange={e => set('org_experience', e.target.value)}
-                              className="form-input resize-none" placeholder="Các dự án, nhiệm vụ đã thực hiện..." />
+
+                          {/* G. Năng lực tổ chức/cá nhân */}
+                          <div className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                            <h4 className="font-heading font-semibold text-sm text-green-800 mb-4 flex items-center gap-2">
+                              <span className="w-6 h-6 rounded bg-green-600 text-white text-xs flex items-center justify-center font-bold">G</span>
+                              Năng lực của tổ chức/cá nhân thực hiện
+                            </h4>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="form-label">Giới thiệu tổ chức/cá nhân</label>
+                                <textarea rows={3} value={form.org_description} onChange={e => set('org_description', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Lịch sử hình thành, lĩnh vực hoạt động, năng lực cốt lõi..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Kinh nghiệm liên quan đến nhiệm vụ</label>
+                                <textarea rows={3} value={form.org_experience} onChange={e => set('org_experience', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Các dự án, nhiệm vụ KH&CN đã thực hiện; kết quả đạt được; công bố khoa học..." />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <label className="form-label">Số tiền yêu cầu (VNĐ) <span className="text-red-500">*</span></label>
-                            <input type="number" value={form.total_investment} onChange={e => set('total_investment', e.target.value)}
-                              className="form-input" placeholder="500000000" min="0" step="1000000" />
-                          </div>
-                          <div>
-                            <label className="form-label">Dự toán chi phí chi tiết</label>
-                            <textarea rows={3} value={form.budget_breakdown} onChange={e => set('budget_breakdown', e.target.value)}
-                              className="form-input resize-none"
-                              placeholder="- Chi phí nhân công: ...&#10;- Chi phí thiết bị: ...&#10;- Chi phí khác: ..." />
-                          </div>
-                          <div>
-                            <label className="form-label">Kết quả dự kiến</label>
-                            <textarea rows={3} value={form.economic_impact} onChange={e => set('economic_impact', e.target.value)}
-                              className="form-input resize-none" placeholder="Sản phẩm, chỉ tiêu kinh tế-xã hội dự kiến..." />
+
+                          <div className="bg-green-50 rounded-xl border border-green-200 p-4 text-sm text-green-800">
+                            <strong>Lưu ý:</strong> Theo Nghị định 68/2025/NĐ-CP (Phụ lục I), tài trợ không hoàn lại tối đa <strong>2 tỷ VNĐ</strong>, tối thiểu <strong>50 triệu VNĐ</strong>. Quỹ NATIF hỗ trợ tối đa <strong>80%</strong> tổng kinh phi nhiệm vụ. Nhiệm vụ phải có chủ nhiệm và cam kết thực hiện theo tiến độ.
                           </div>
                         </div>
                       )}
