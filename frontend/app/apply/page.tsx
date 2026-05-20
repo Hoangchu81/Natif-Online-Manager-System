@@ -21,6 +21,7 @@ const PROGRAMS = [
     iconBg: 'bg-blue-100',
     iconColor: 'text-natif-blue',
     maxBudget: '5 tỷ VNĐ',
+    minBudget: '100 triệu VNĐ',
   },
   {
     value: 'sponsorship',
@@ -35,6 +36,7 @@ const PROGRAMS = [
     iconBg: 'bg-green-100',
     iconColor: 'text-green-600',
     maxBudget: '2 tỷ VNĐ',
+    minBudget: '50 triệu VNĐ',
   },
   {
     value: 'voucher',
@@ -49,6 +51,7 @@ const PROGRAMS = [
     iconBg: 'bg-cyan-100',
     iconColor: 'text-cyan-600',
     maxBudget: '100 triệu VNĐ',
+    minBudget: '5 triệu VNĐ',
   },
   {
     value: 'ecosystem',
@@ -63,10 +66,11 @@ const PROGRAMS = [
     iconBg: 'bg-amber-100',
     iconColor: 'text-amber-600',
     maxBudget: '3 tỷ VNĐ',
+    minBudget: '200 triệu VNĐ',
   },
 ];
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 interface FormData {
   // Step 1
@@ -75,28 +79,70 @@ interface FormData {
   company_name: string;
   tax_code: string;
   company_address: string;
+  district_city: string;
+  phone: string;
+  email: string;
+  website: string;
+  company_type: string;
+  founding_date: string;
+  business_lines: string;
+  employee_count: string;
+  charter_capital: string;
+  total_assets: string;
+  // Step 2b - Representative
   representative_name: string;
   representative_position: string;
+  representative_id_no: string;
+  representative_id_issued_date: string;
+  representative_id_issued_place: string;
+  has_power_of_attorney: boolean;
+  // Step 2c - Contact
   contact_name: string;
-  contact_email: string;
+  contact_position: string;
   contact_phone: string;
-  // Step 3 - Program-specific
+  contact_email: string;
+  // Step 3 - Loan info (interest_subsidy only)
+  bank_name: string;
+  bank_branch: string;
+  credit_contract_no: string;
+  credit_contract_date: string;
+  loan_amount: string;
+  disbursed_amount: string;
+  outstanding_balance: string;
+  loan_purpose: string;
+  interest_rate: string;
+  loan_term_months: string;
+  disbursement_date: string;
+  maturity_date: string;
+  collateral_description: string;
+  collateral_value: string;
+  repayment_method: string;
+  loan_account_no: string;
+  // Step 4 - Project info (all programs)
   project_name: string;
   project_address: string;
   project_objectives: string;
   project_content: string;
+  technology_description: string;
+  technology_reason: string;
   project_duration: string;
-  budget_requested: string;
+  total_investment: string;
+  equity_contribution: string;
+  loan_portion: string;
+  other_funding: string;
+  other_funding_source: string;
   budget_breakdown: string;
-  expected_results: string;
-  // Interest subsidy specific
-  bank_name: string;
-  bank_branch: string;
-  loan_amount: string;
-  loan_account: string;
-  interest_rate: string;
-  loan_contract_no: string;
-  contract_date: string;
+  expected_revenue_y1: string;
+  expected_revenue_y2: string;
+  expected_revenue_y3: string;
+  expected_profit_y1: string;
+  expected_profit_y2: string;
+  expected_profit_y3: string;
+  payback_period: string;
+  economic_impact: string;
+  social_impact: string;
+  implementation_milestones: string;
+  technical_capacity: string;
   commitment_content: string;
   // Sponsorship specific
   task_location: string;
@@ -113,19 +159,43 @@ interface FormData {
   activities_description: string;
   activities_results: string;
   org_recognition_type: string;
+  // Step 5 - Documents
+  doc_dkkd: boolean;
+  doc_id_copy: boolean;
+  doc_financial_report: boolean;
+  doc_credit_contract: boolean;
+  doc_no_bad_debt: boolean;
+  doc_business_plan: boolean;
+  doc_collateral: boolean;
+  doc_budget_approved: boolean;
+  doc_commitment: boolean;
+  doc_board_resolution: boolean;
+  doc_other: boolean;
+  doc_other_note: string;
 }
 
 const initialForm: FormData = {
   program_type: '',
-  company_name: '', tax_code: '', company_address: '', representative_name: '', representative_position: '',
-  contact_name: '', contact_email: '', contact_phone: '',
-  project_name: '', project_address: '', project_objectives: '', project_content: '', project_duration: '',
-  budget_requested: '', budget_breakdown: '', expected_results: '',
-  bank_name: '', bank_branch: '', loan_amount: '', loan_account: '', interest_rate: '',
-  loan_contract_no: '', contract_date: '', commitment_content: '',
+  company_name: '', tax_code: '', company_address: '', district_city: '', phone: '', email: '', website: '',
+  company_type: '', founding_date: '', business_lines: '', employee_count: '', charter_capital: '', total_assets: '',
+  representative_name: '', representative_position: '', representative_id_no: '', representative_id_issued_date: '',
+  representative_id_issued_place: '', has_power_of_attorney: false,
+  contact_name: '', contact_position: '', contact_phone: '', contact_email: '',
+  bank_name: '', bank_branch: '', credit_contract_no: '', credit_contract_date: '', loan_amount: '',
+  disbursed_amount: '', outstanding_balance: '', loan_purpose: '', interest_rate: '', loan_term_months: '',
+  disbursement_date: '', maturity_date: '', collateral_description: '', collateral_value: '', repayment_method: '',
+  loan_account_no: '',
+  project_name: '', project_address: '', project_objectives: '', project_content: '', technology_description: '',
+  technology_reason: '', project_duration: '', total_investment: '', equity_contribution: '', loan_portion: '',
+  other_funding: '', other_funding_source: '', budget_breakdown: '', expected_revenue_y1: '', expected_revenue_y2: '',
+  expected_revenue_y3: '', expected_profit_y1: '', expected_profit_y2: '', expected_profit_y3: '', payback_period: '',
+  economic_impact: '', social_impact: '', implementation_milestones: '', technical_capacity: '', commitment_content: '',
   task_location: '', task_methodology: '', org_description: '', org_experience: '',
   service_type: '', service_provider: '', provider_contact: '', service_cost: '', commitment_use: '',
   activities_description: '', activities_results: '', org_recognition_type: '',
+  doc_dkkd: false, doc_id_copy: false, doc_financial_report: false, doc_credit_contract: false,
+  doc_no_bad_debt: false, doc_business_plan: false, doc_collateral: false, doc_budget_approved: false,
+  doc_commitment: false, doc_board_resolution: false, doc_other: false, doc_other_note: '',
 };
 
 function formatCurrency(num: number) {
@@ -141,33 +211,52 @@ export default function ApplyPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
-  const set = (k: keyof FormData, v: string) => setForm(prev => ({ ...prev, [k]: v }));
+  const set = (k: keyof FormData, v: string | boolean) => setForm(prev => ({ ...prev, [k]: v }));
 
   const validateStep2 = (): boolean => {
     const e: Partial<Record<keyof FormData, string>> = {};
     if (!form.company_name.trim()) e.company_name = 'Tên doanh nghiệp là bắt buộc';
     if (!form.tax_code.trim()) e.tax_code = 'Mã số thuế là bắt buộc';
+    else if (!/^\d{10}(\d{3})?$/.test(form.tax_code.replace(/\s/g, ''))) e.tax_code = 'Mã số thuế không hợp lệ';
+    if (!form.district_city.trim()) e.district_city = 'Quận/Huyện, Tỉnh/Thành phố là bắt buộc';
     if (!form.representative_name.trim()) e.representative_name = 'Người đại diện là bắt buộc';
+    if (!form.representative_id_no.trim()) e.representative_id_no = 'Số CCCD là bắt buộc';
+    if (!form.representative_id_issued_date.trim()) e.representative_id_issued_date = 'Ngày cấp CCCD là bắt buộc';
+    if (!form.representative_id_issued_place.trim()) e.representative_id_issued_place = 'Nơi cấp CCCD là bắt buộc';
     if (!form.contact_name.trim()) e.contact_name = 'Người liên hệ là bắt buộc';
     if (!form.contact_email.trim()) e.contact_email = 'Email là bắt buộc';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contact_email)) e.contact_email = 'Email không hợp lệ';
+    if (!form.phone.trim()) e.phone = 'Số điện thoại là bắt buộc';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const validateStep3 = (): boolean => {
+    if (form.program_type !== 'interest_subsidy') return true;
     const e: Partial<Record<keyof FormData, string>> = {};
-    if (!form.project_name.trim()) e.project_name = 'Tên dự án/nhiệm vụ là bắt buộc';
-    if (!form.budget_requested.trim()) e.budget_requested = 'Số tiền yêu cầu là bắt buộc';
-    else if (isNaN(Number(form.budget_requested)) || Number(form.budget_requested) <= 0) e.budget_requested = 'Số tiền không hợp lệ';
+    if (!form.bank_name.trim()) e.bank_name = 'Tên ngân hàng là bắt buộc';
+    if (!form.credit_contract_no.trim()) e.credit_contract_no = 'Số hợp đồng tín dụng là bắt buộc';
+    if (!form.loan_amount.trim()) e.loan_amount = 'Số tiền vay là bắt buộc';
+    if (!form.disbursed_amount.trim()) e.disbursed_amount = 'Số tiền đã giải ngân là bắt buộc';
+    if (!form.outstanding_balance.trim()) e.outstanding_balance = 'Số dư nợ còn lại là bắt buộc';
+    if (!form.interest_rate.trim()) e.interest_rate = 'Lãi suất là bắt buộc';
+    if (!form.collateral_description.trim()) e.collateral_description = 'Mô tả tài sản bảo đảm là bắt buộc';
+    setErrors(prev => ({ ...prev, ...e }));
+    return Object.keys(e).length === 0;
+  };
+
+  const validateStep4 = (): boolean => {
+    const e: Partial<Record<keyof FormData, string>> = {};
+    if (!form.project_name.trim()) e.project_name = 'Tên dự án là bắt buộc';
     if (!form.project_objectives.trim()) e.project_objectives = 'Mục tiêu dự án là bắt buộc';
     if (!form.project_content.trim()) e.project_content = 'Nội dung dự án là bắt buộc';
-    if (!form.expected_results.trim()) e.expected_results = 'Kết quả dự kiến là bắt buộc';
-
-    if (form.program_type === 'interest_subsidy') {
-      if (!form.loan_amount.trim()) e.loan_amount = 'Số tiền vay là bắt buộc';
-      if (!form.bank_name.trim()) e.bank_name = 'Tên ngân hàng là bắt buộc';
-    }
+    if (!form.total_investment.trim()) e.total_investment = 'Tổng vốn đầu tư là bắt buộc';
+    if (!form.equity_contribution.trim()) e.equity_contribution = 'Vốn tự có là bắt buộc';
+    if (!form.budget_breakdown.trim()) e.budget_breakdown = 'Dự toán chi phí là bắt buộc';
+    if (!form.expected_revenue_y1.trim()) e.expected_revenue_y1 = 'Doanh thu năm 1 là bắt buộc';
+    if (!form.payback_period.trim()) e.payback_period = 'Thời gian hoàn vốn là bắt buộc';
+    if (!form.commitment_content.trim()) e.commitment_content = 'Nội dung cam kết là bắt buộc';
+    if (!form.implementation_milestones.trim()) e.implementation_milestones = 'Tiến độ thực hiện là bắt buộc';
     if (form.program_type === 'voucher') {
       if (!form.service_type.trim()) e.service_type = 'Loại dịch vụ là bắt buộc';
       if (!form.service_provider.trim()) e.service_provider = 'Đơn vị cung cấp là bắt buộc';
@@ -175,24 +264,52 @@ export default function ApplyPage() {
     if (form.program_type === 'ecosystem') {
       if (!form.activities_description.trim()) e.activities_description = 'Mô tả hoạt động là bắt buộc';
     }
+    setErrors(prev => ({ ...prev, ...e }));
+    return Object.keys(e).length === 0;
+  };
 
-    setErrors(e);
+  const validateStep5 = (): boolean => {
+    const e: Partial<Record<keyof FormData, string>> = {};
+    if (!form.doc_dkkd) e.doc_dkkd = 'ĐKKD là bắt buộc';
+    if (!form.doc_id_copy) e.doc_id_copy = 'Bản sao CCCD là bắt buộc';
+    if (!form.doc_financial_report) e.doc_financial_report = 'Báo cáo tài chính là bắt buộc';
+    if (!form.doc_commitment) e.doc_commitment = 'Cam kết hoàn vốn là bắt buộc';
+    setErrors(prev => ({ ...prev, ...e }));
     return Object.keys(e).length === 0;
   };
 
   const handleNext = () => {
     if (step === 1 && form.program_type) setStep(2);
     else if (step === 2 && validateStep2()) setStep(3);
+    else if (step === 3 && validateStep3()) setStep(4);
+    else if (step === 4 && validateStep4()) setStep(5);
   };
 
   const handleBack = () => {
-    if (step === 3) setStep(2);
+    if (step === 5) setStep(4);
+    else if (step === 4) setStep(3);
+    else if (step === 3) setStep(2);
     else if (step === 2) setStep(1);
   };
 
+  const getStepLabel = (s: Step) => {
+    const labels: Record<Step, string> = {
+      1: 'Chọn chương trình',
+      2: 'Thông tin doanh nghiệp',
+      3: form.program_type === 'interest_subsidy' ? 'Thông tin khoản vay' : 'Nội dung hồ sơ',
+      4: 'Thông tin dự án',
+      5: 'Tài liệu đính kèm',
+    };
+    return labels[s];
+  };
+
+  const totalSteps = form.program_type === 'interest_subsidy' ? 5 : 4;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateStep3()) return;
+    if (form.program_type === 'interest_subsidy') {
+      if (!validateStep5()) return;
+    }
 
     setStatus('submitting');
     setErrorMsg('');
@@ -206,37 +323,50 @@ export default function ApplyPage() {
       contact_phone: form.contact_phone,
       title: form.project_name,
       description: JSON.stringify({
-        company_address: form.company_address,
-        representative_name: form.representative_name,
-        representative_position: form.representative_position,
-        project_address: form.project_address,
-        project_objectives: form.project_objectives,
-        project_content: form.project_content,
-        project_duration: form.project_duration,
+        // Company
+        district_city: form.district_city, phone: form.phone, email: form.email, website: form.website,
+        company_type: form.company_type, founding_date: form.founding_date, business_lines: form.business_lines,
+        employee_count: form.employee_count, charter_capital: form.charter_capital, total_assets: form.total_assets,
+        // Representative
+        representative_name: form.representative_name, representative_position: form.representative_position,
+        representative_id_no: form.representative_id_no, representative_id_issued_date: form.representative_id_issued_date,
+        representative_id_issued_place: form.representative_id_issued_place, has_power_of_attorney: form.has_power_of_attorney,
+        // Contact
+        contact_position: form.contact_position,
+        // Loan
+        bank_name: form.bank_name, bank_branch: form.bank_branch, credit_contract_no: form.credit_contract_no,
+        credit_contract_date: form.credit_contract_date, loan_amount: form.loan_amount, disbursed_amount: form.disbursed_amount,
+        outstanding_balance: form.outstanding_balance, loan_purpose: form.loan_purpose, interest_rate: form.interest_rate,
+        loan_term_months: form.loan_term_months, disbursement_date: form.disbursement_date, maturity_date: form.maturity_date,
+        collateral_description: form.collateral_description, collateral_value: form.collateral_value,
+        repayment_method: form.repayment_method, loan_account_no: form.loan_account_no,
+        // Project
+        project_address: form.project_address, project_objectives: form.project_objectives,
+        project_content: form.project_content, technology_description: form.technology_description,
+        technology_reason: form.technology_reason, project_duration: form.project_duration,
+        total_investment: form.total_investment, equity_contribution: form.equity_contribution,
+        loan_portion: form.loan_portion, other_funding: form.other_funding, other_funding_source: form.other_funding_source,
         budget_breakdown: form.budget_breakdown,
-        expected_results: form.expected_results,
-        bank_name: form.bank_name,
-        bank_branch: form.bank_branch,
-        loan_amount: form.loan_amount,
-        loan_account: form.loan_account,
-        interest_rate: form.interest_rate,
-        loan_contract_no: form.loan_contract_no,
-        contract_date: form.contract_date,
+        expected_revenue_y1: form.expected_revenue_y1, expected_revenue_y2: form.expected_revenue_y2,
+        expected_revenue_y3: form.expected_revenue_y3,
+        expected_profit_y1: form.expected_profit_y1, expected_profit_y2: form.expected_profit_y2,
+        expected_profit_y3: form.expected_profit_y3,
+        payback_period: form.payback_period, economic_impact: form.economic_impact, social_impact: form.social_impact,
+        implementation_milestones: form.implementation_milestones, technical_capacity: form.technical_capacity,
         commitment_content: form.commitment_content,
-        task_location: form.task_location,
-        task_methodology: form.task_methodology,
-        org_description: form.org_description,
-        org_experience: form.org_experience,
-        service_type: form.service_type,
-        service_provider: form.service_provider,
-        provider_contact: form.provider_contact,
-        service_cost: form.service_cost,
-        commitment_use: form.commitment_use,
-        activities_description: form.activities_description,
-        activities_results: form.activities_results,
+        // Sponsorship
+        task_location: form.task_location, task_methodology: form.task_methodology,
+        org_description: form.org_description, org_experience: form.org_experience,
+        // Voucher
+        service_type: form.service_type, service_provider: form.service_provider,
+        provider_contact: form.provider_contact, service_cost: form.service_cost, commitment_use: form.commitment_use,
+        // Ecosystem
+        activities_description: form.activities_description, activities_results: form.activities_results,
         org_recognition_type: form.org_recognition_type,
+        // Documents
+        doc_other_note: form.doc_other_note,
       }),
-      budget_requested: Number(form.budget_requested),
+      budget_requested: Number(form.loan_portion || form.total_investment || 0),
     };
 
     try {
@@ -256,6 +386,7 @@ export default function ApplyPage() {
   };
 
   const selectedProgram = PROGRAMS.find(p => p.value === form.program_type);
+  const isInterestSubsidy = form.program_type === 'interest_subsidy';
 
   if (status === 'success') {
     return (
@@ -270,8 +401,7 @@ export default function ApplyPage() {
             </div>
             <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3">Nộp hồ sơ thành công!</h1>
             <p className="text-gray-500 mb-8">
-              Hồ sơ của bạn đã được ghi nhận và đang ở trạng thái <strong>nháp</strong>.
-              Đội ngũ NATIF sẽ xem xét sau khi bạn xác nhận gửi. Thông tin phản hồi sẽ được gửi qua email đã cung cấp.
+              Hồ sơ của bạn đã được ghi nhận. Đội ngũ NATIF sẽ xem xét và phản hồi qua email trong vòng <strong>5 ngày làm việc</strong>.
             </p>
             <div className="bg-white rounded-xl border border-gray-200 p-6 text-left space-y-3 mb-8">
               <div className="flex justify-between text-sm">
@@ -283,14 +413,36 @@ export default function ApplyPage() {
                 <span className="font-medium text-gray-900">{form.project_name}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Số tiền đề xuất</span>
-                <span className="font-semibold text-natif-blue">
-                  {formatCurrency(Number(form.budget_requested))} VNĐ
-                </span>
+                <span className="text-gray-500">Doanh nghiệp</span>
+                <span className="font-medium text-gray-900">{form.company_name}</span>
               </div>
               <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Mã số thuế</span>
+                <span className="font-medium text-gray-900">{form.tax_code}</span>
+              </div>
+              {isInterestSubsidy && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Ngân hàng</span>
+                    <span className="font-medium text-gray-900">{form.bank_name}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Số tiền vay</span>
+                    <span className="font-semibold text-natif-blue">
+                      {form.loan_amount ? formatCurrency(Number(form.loan_amount)) : '—'} VNĐ
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Số dư nợ còn lại</span>
+                    <span className="font-semibold text-natif-blue">
+                      {form.outstanding_balance ? formatCurrency(Number(form.outstanding_balance)) : '—'} VNĐ
+                    </span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Căn cứ pháp lý</span>
-                <span className="font-medium text-gray-900 text-right">{selectedProgram?.legal}</span>
+                <span className="font-medium text-gray-900 text-right text-xs">{selectedProgram?.legal}</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -319,7 +471,9 @@ export default function ApplyPage() {
               </div>
               <h1 className="font-heading font-extrabold text-3xl md:text-4xl mb-2">Nộp hồ sơ xin hỗ trợ</h1>
               <p className="text-white/80 text-sm">
-                Hoàn tất hồ sơ theo các bước bên dưới để được xem xét hỗ trợ theo quy định pháp luật hiện hành.
+                {isInterestSubsidy
+                  ? 'Hồ sơ chi tiết theo mẫu Quỹ NATIF — Nghị định 268/2025/NĐ-CP (Phụ lục II). Điền đầy đủ thông tin theo từng phần.'
+                  : 'Hoàn tất hồ sơ theo các bước bên dưới để được xem xét hỗ trợ.'}
               </p>
             </div>
           </div>
@@ -327,27 +481,23 @@ export default function ApplyPage() {
 
         {/* Progress steps */}
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center py-5">
-              {[
-                { n: 1 as Step, label: 'Chọn chương trình' },
-                { n: 2 as Step, label: 'Thông tin doanh nghiệp' },
-                { n: 3 as Step, label: 'Thông tin dự án' },
-              ].map((s, i, arr) => (
-                <div key={s.n} className="flex items-center">
-                  <div className={`flex items-center gap-2.5 ${step >= s.n ? 'text-natif-blue' : 'text-gray-400'}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors
-                      ${step >= s.n ? 'bg-natif-blue text-white' : 'bg-gray-200 text-gray-500'}`}>
-                      {step > s.n ? (
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center py-5 overflow-x-auto">
+              {([1, 2, 3, 4, 5] as Step[]).filter(s => s <= totalSteps).map((s, i, arr) => (
+                <div key={s} className="flex items-center shrink-0">
+                  <div className={`flex items-center gap-2 ${step >= s ? 'text-natif-blue' : 'text-gray-400'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors shrink-0
+                      ${step >= s ? 'bg-natif-blue text-white' : 'bg-gray-200 text-gray-500'}`}>
+                      {step > s ? (
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                         </svg>
-                      ) : s.n}
+                      ) : s}
                     </div>
-                    <span className="text-sm font-medium hidden sm:block">{s.label}</span>
+                    <span className="text-sm font-medium whitespace-nowrap hidden md:block">{getStepLabel(s)}</span>
                   </div>
                   {i < arr.length - 1 && (
-                    <div className={`w-12 sm:w-24 h-0.5 mx-3 ${step > s.n ? 'bg-natif-blue' : 'bg-gray-200'}`} />
+                    <div className={`w-8 sm:w-12 h-0.5 mx-2 shrink-0 ${step > s ? 'bg-natif-blue' : 'bg-gray-200'}`} />
                   )}
                 </div>
               ))}
@@ -356,7 +506,7 @@ export default function ApplyPage() {
         </div>
 
         <div className="py-12 bg-gray-50">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <form onSubmit={handleSubmit}>
 
               {/* Step 1: Select program */}
@@ -382,7 +532,9 @@ export default function ApplyPage() {
                               <div className="font-semibold text-gray-900 text-sm mb-1">{p.label}</div>
                               <div className="text-xs text-gray-500 leading-relaxed mb-2">{p.desc}</div>
                               <div className="text-xs text-gray-400">{p.legal}</div>
-                              <div className="text-xs font-medium text-gray-700 mt-1">Tối đa: {p.maxBudget}</div>
+                              <div className="text-xs font-medium text-gray-700 mt-1">
+                                Từ {p.minBudget} — Tối đa {p.maxBudget}
+                              </div>
                             </div>
                           </div>
                           {form.program_type === p.value && (
@@ -417,70 +569,178 @@ export default function ApplyPage() {
                       <div>
                         <h2 className="font-heading font-bold text-lg text-gray-900">Thông tin doanh nghiệp</h2>
                         <p className="text-gray-500 text-sm mt-0.5">
-                          Thông tin pháp lý và người đại diện của tổ chức/doanh nghiệp
+                          {isInterestSubsidy
+                            ? 'Phần A: Thông tin doanh nghiệp — Nghị định 268/2025/NĐ-CP (Phụ lục II)'
+                            : 'Thông tin pháp lý, người đại diện và người liên hệ của tổ chức/doanh nghiệp'}
                         </p>
                       </div>
-                      <button type="button" onClick={handleBack}
-                        className="text-sm text-natif-blue hover:underline">← Quay lại</button>
+                      <button type="button" onClick={handleBack} className="text-sm text-natif-blue hover:underline">← Quay lại</button>
                     </div>
 
-                    <div className="space-y-5">
+                    <div className="space-y-6">
+                      {/* A. Thông tin pháp lý */}
                       <div>
-                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
+                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100 flex items-center gap-2">
+                          <span className="w-6 h-6 rounded bg-natif-blue text-white text-xs flex items-center justify-center font-bold">A</span>
                           Thông tin pháp lý
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="form-label">Tên doanh nghiệp <span className="text-red-500">*</span></label>
+                            <label className="form-label">Tên doanh nghiệp (theo ĐKKD) <span className="text-red-500">*</span></label>
                             <input type="text" value={form.company_name} onChange={e => set('company_name', e.target.value)}
                               className={`form-input ${errors.company_name ? 'border-red-400' : ''}`}
-                              placeholder="Công ty TNHH ABC" />
+                              placeholder="Công ty TNHH MTV ABC Việt Nam" />
                             {errors.company_name && <p className="form-error">{errors.company_name}</p>}
                           </div>
                           <div>
-                            <label className="form-label">Mã số thuế <span className="text-red-500">*</span></label>
+                            <label className="form-label">Mã số thuế (MST) <span className="text-red-500">*</span></label>
                             <input type="text" value={form.tax_code} onChange={e => set('tax_code', e.target.value)}
                               className={`form-input ${errors.tax_code ? 'border-red-400' : ''}`}
                               placeholder="0123456789" maxLength={14} />
                             {errors.tax_code && <p className="form-error">{errors.tax_code}</p>}
                           </div>
                           <div className="sm:col-span-2">
-                            <label className="form-label">Địa chỉ trụ sở</label>
+                            <label className="form-label">Địa chỉ trụ sở chính</label>
                             <input type="text" value={form.company_address} onChange={e => set('company_address', e.target.value)}
-                              className="form-input" placeholder="Số X, đường Y, phường Z, quận Hồ Chí Minh" />
+                              className="form-input" placeholder="Số X, đường Y, phường Z" />
                           </div>
                           <div>
-                            <label className="form-label">Người đại diện <span className="text-red-500">*</span></label>
+                            <label className="form-label">Quận/Huyện, Tỉnh/Thành phố <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.district_city} onChange={e => set('district_city', e.target.value)}
+                              className={`form-input ${errors.district_city ? 'border-red-400' : ''}`}
+                              placeholder="Quận Cầu Giấy, Hà Nội" />
+                            {errors.district_city && <p className="form-error">{errors.district_city}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Số điện thoại <span className="text-red-500">*</span></label>
+                            <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)}
+                              className={`form-input ${errors.phone ? 'border-red-400' : ''}`}
+                              placeholder="024 3xxx xxxx" />
+                            {errors.phone && <p className="form-error">{errors.phone}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Email</label>
+                            <input type="email" value={form.email} onChange={e => set('email', e.target.value)}
+                              className="form-input" placeholder="contact@doanhnghiep.vn" />
+                          </div>
+                          <div>
+                            <label className="form-label">Website (nếu có)</label>
+                            <input type="text" value={form.website} onChange={e => set('website', e.target.value)}
+                              className="form-input" placeholder="https://doanhnghiep.vn" />
+                          </div>
+                          <div>
+                            <label className="form-label">Loại hình doanh nghiệp</label>
+                            <select value={form.company_type} onChange={e => set('company_type', e.target.value)} className="form-input">
+                              <option value="">-- Chọn loại hình --</option>
+                              <option value="dn_tu_nhan">Doanh nghiệp tư nhân</option>
+                              <option value="tnhh_1tv">Công ty TNHH một thành viên</option>
+                              <option value="tnhh_2tv">Công ty TNHH hai thành viên trở lên</option>
+                              <option value="ctcp">Công ty cổ phần</option>
+                              <option value="htx">Hợp tác xã</option>
+                              <option value="khac">Loại hình khác</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="form-label">Ngày thành lập</label>
+                            <input type="date" value={form.founding_date} onChange={e => set('founding_date', e.target.value)}
+                              className="form-input" />
+                          </div>
+                          <div>
+                            <label className="form-label">Ngành nghề đăng ký kinh doanh</label>
+                            <input type="text" value={form.business_lines} onChange={e => set('business_lines', e.target.value)}
+                              className="form-input" placeholder="Theo ĐKKD" />
+                          </div>
+                          <div>
+                            <label className="form-label">Số lao động hiện có</label>
+                            <input type="number" value={form.employee_count} onChange={e => set('employee_count', e.target.value)}
+                              className="form-input" placeholder="50" min="0" />
+                          </div>
+                          <div>
+                            <label className="form-label">Vốn điều lệ (VNĐ)</label>
+                            <input type="number" value={form.charter_capital} onChange={e => set('charter_capital', e.target.value)}
+                              className="form-input" placeholder="10000000000" min="0" step="1000000" />
+                          </div>
+                          <div>
+                            <label className="form-label">Tổng tài sản (VNĐ)</label>
+                            <input type="number" value={form.total_assets} onChange={e => set('total_assets', e.target.value)}
+                              className="form-input" placeholder="50000000000" min="0" step="1000000" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* B. Người đại diện */}
+                      <div>
+                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100 flex items-center gap-2">
+                          <span className="w-6 h-6 rounded bg-natif-blue text-white text-xs flex items-center justify-center font-bold">B</span>
+                          Người đại diện pháp lý
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="form-label">Họ và tên <span className="text-red-500">*</span></label>
                             <input type="text" value={form.representative_name} onChange={e => set('representative_name', e.target.value)}
                               className={`form-input ${errors.representative_name ? 'border-red-400' : ''}`}
                               placeholder="Nguyễn Văn A" />
                             {errors.representative_name && <p className="form-error">{errors.representative_name}</p>}
                           </div>
                           <div>
-                            <label className="form-label">Chức vụ người đại diện</label>
+                            <label className="form-label">Chức vụ</label>
                             <input type="text" value={form.representative_position} onChange={e => set('representative_position', e.target.value)}
                               className="form-input" placeholder="Giám đốc" />
+                          </div>
+                          <div>
+                            <label className="form-label">Số CCCD/CMND <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.representative_id_no} onChange={e => set('representative_id_no', e.target.value)}
+                              className={`form-input ${errors.representative_id_no ? 'border-red-400' : ''}`}
+                              placeholder="012345678901" maxLength={12} />
+                            {errors.representative_id_no && <p className="form-error">{errors.representative_id_no}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Ngày cấp CCCD <span className="text-red-500">*</span></label>
+                            <input type="date" value={form.representative_id_issued_date} onChange={e => set('representative_id_issued_date', e.target.value)}
+                              className={`form-input ${errors.representative_id_issued_date ? 'border-red-400' : ''}`} />
+                            {errors.representative_id_issued_date && <p className="form-error">{errors.representative_id_issued_date}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Nơi cấp CCCD <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.representative_id_issued_place} onChange={e => set('representative_id_issued_place', e.target.value)}
+                              className={`form-input ${errors.representative_id_issued_place ? 'border-red-400' : ''}`}
+                              placeholder="Công an TP. Hà Nội" />
+                            {errors.representative_id_issued_place && <p className="form-error">{errors.representative_id_issued_place}</p>}
+                          </div>
+                          <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 sm:col-span-2">
+                            <input type="checkbox" id="has_poa" checked={form.has_power_of_attorney} onChange={e => set('has_power_of_attorney', e.target.checked)}
+                              className="w-4 h-4 text-natif-blue rounded border-gray-300" />
+                            <label htmlFor="has_poa" className="text-sm text-gray-700">
+                              Doanh nghiệp ủy quyền cho người khác nộp hồ sơ (có giấy ủy quyền đính kèm)
+                            </label>
                           </div>
                         </div>
                       </div>
 
+                      {/* C. Người liên hệ */}
                       <div>
-                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
-                          Người liên hệ
+                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100 flex items-center gap-2">
+                          <span className="w-6 h-6 rounded bg-natif-blue text-white text-xs flex items-center justify-center font-bold">C</span>
+                          Người liên hệ (phụ trách hồ sơ)
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="form-label">Họ và tên <span className="text-red-500">*</span></label>
                             <input type="text" value={form.contact_name} onChange={e => set('contact_name', e.target.value)}
                               className={`form-input ${errors.contact_name ? 'border-red-400' : ''}`}
-                              placeholder="Nguyễn Văn A" />
+                              placeholder="Nguyễn Thị B" />
                             {errors.contact_name && <p className="form-error">{errors.contact_name}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Chức vụ</label>
+                            <input type="text" value={form.contact_position} onChange={e => set('contact_position', e.target.value)}
+                              className="form-input" placeholder="Kế toán trưởng" />
                           </div>
                           <div>
                             <label className="form-label">Email <span className="text-red-500">*</span></label>
                             <input type="email" value={form.contact_email} onChange={e => set('contact_email', e.target.value)}
                               className={`form-input ${errors.contact_email ? 'border-red-400' : ''}`}
-                              placeholder="contact@doanhnghiep.vn" />
+                              placeholder="hotro@doanhnghiep.vn" />
                             {errors.contact_email && <p className="form-error">{errors.contact_email}</p>}
                           </div>
                           <div>
@@ -505,286 +765,647 @@ export default function ApplyPage() {
                 </div>
               )}
 
-              {/* Step 3: Project info */}
-              {step === 3 && (
+              {/* Step 3: Loan info (interest_subsidy only) */}
+              {step === 3 && isInterestSubsidy && (
                 <div className="space-y-5">
                   <div className="card-flat border border-gray-200">
                     <div className="flex items-center justify-between mb-6">
                       <div>
-                        <h2 className="font-heading font-bold text-lg text-gray-900">
-                          Thông tin dự án / nhiệm vụ
-                        </h2>
+                        <h2 className="font-heading font-bold text-lg text-gray-900">Thông tin khoản vay</h2>
                         <p className="text-gray-500 text-sm mt-0.5">
-                          {selectedProgram?.legal}
+                          Phần B: Thông tin khoản vay tại ngân hàng thương mại — Nghị định 268/2025/NĐ-CP
                         </p>
                       </div>
-                      <button type="button" onClick={handleBack}
-                        className="text-sm text-natif-blue hover:underline">← Quay lại</button>
+                      <button type="button" onClick={handleBack} className="text-sm text-natif-blue hover:underline">← Quay lại</button>
+                    </div>
+
+                    <div className="space-y-6">
+                      {/* Thông tin hợp đồng */}
+                      <div>
+                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100 flex items-center gap-2">
+                          <span className="w-6 h-6 rounded bg-blue-600 text-white text-xs flex items-center justify-center font-bold">1</span>
+                          Thông tin hợp đồng tín dụng
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="form-label">Tên ngân hàng cho vay <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.bank_name} onChange={e => set('bank_name', e.target.value)}
+                              className={`form-input ${errors.bank_name ? 'border-red-400' : ''}`}
+                              placeholder="Ngân hàng TMCP Ngoại Thương Việt Nam (Vietcombank)" />
+                            {errors.bank_name && <p className="form-error">{errors.bank_name}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Chi nhánh/TP ngân hàng</label>
+                            <input type="text" value={form.bank_branch} onChange={e => set('bank_branch', e.target.value)}
+                              className="form-input" placeholder="Chi nhánh TP. Hồ Chí Minh" />
+                          </div>
+                          <div>
+                            <label className="form-label">Số hợp đồng tín dụng <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.credit_contract_no} onChange={e => set('credit_contract_no', e.target.value)}
+                              className={`form-input ${errors.credit_contract_no ? 'border-red-400' : ''}`}
+                              placeholder="001/HDTD/2026" />
+                            {errors.credit_contract_no && <p className="form-error">{errors.credit_contract_no}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Ngày ký hợp đồng</label>
+                            <input type="date" value={form.credit_contract_date} onChange={e => set('credit_contract_date', e.target.value)}
+                              className="form-input" />
+                          </div>
+                          <div>
+                            <label className="form-label">Số tài khoản thanh toán</label>
+                            <input type="text" value={form.loan_account_no} onChange={e => set('loan_account_no', e.target.value)}
+                              className="form-input" placeholder="1234567890123" />
+                          </div>
+                          <div>
+                            <label className="form-label">Phương thức trả nợ</label>
+                            <select value={form.repayment_method} onChange={e => set('repayment_method', e.target.value)} className="form-input">
+                              <option value="">-- Chọn --</option>
+                              <option value="monthly">Hàng tháng</option>
+                              <option value="quarterly">Hàng quý</option>
+                              <option value="bullet">Một lần khi đáo hạn</option>
+                              <option value="mixed">Kết hợp (vốn gốc định kỳ, lãi hàng tháng)</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Số tiền vay */}
+                      <div>
+                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100 flex items-center gap-2">
+                          <span className="w-6 h-6 rounded bg-blue-600 text-white text-xs flex items-center justify-center font-bold">2</span>
+                          Số tiền vay và giải ngân
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="form-label">Tổng số tiền vay theo HĐ tín dụng (VNĐ) <span className="text-red-500">*</span></label>
+                            <input type="number" value={form.loan_amount} onChange={e => set('loan_amount', e.target.value)}
+                              className={`form-input ${errors.loan_amount ? 'border-red-400' : ''}`}
+                              placeholder="3000000000" min="0" step="1000000" />
+                            {errors.loan_amount && <p className="form-error">{errors.loan_amount}</p>}
+                            {form.loan_amount && !isNaN(Number(form.loan_amount)) && Number(form.loan_amount) > 0 && (
+                              <p className="text-xs text-gray-500 mt-1">Tương đương: {formatCurrency(Number(form.loan_amount))} VNĐ</p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="form-label">Lãi suất theo HĐ (%/năm) <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.interest_rate} onChange={e => set('interest_rate', e.target.value)}
+                              className={`form-input ${errors.interest_rate ? 'border-red-400' : ''}`}
+                              placeholder="8.5" />
+                            {errors.interest_rate && <p className="form-error">{errors.interest_rate}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Số tiền đã giải ngân (VNĐ) <span className="text-red-500">*</span></label>
+                            <input type="number" value={form.disbursed_amount} onChange={e => set('disbursed_amount', e.target.value)}
+                              className={`form-input ${errors.disbursed_amount ? 'border-red-400' : ''}`}
+                              placeholder="1500000000" min="0" step="1000000" />
+                            {errors.disbursed_amount && <p className="form-error">{errors.disbursed_amount}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Số dư nợ gốc còn lại (VNĐ) <span className="text-red-500">*</span></label>
+                            <input type="number" value={form.outstanding_balance} onChange={e => set('outstanding_balance', e.target.value)}
+                              className={`form-input ${errors.outstanding_balance ? 'border-red-400' : ''}`}
+                              placeholder="2500000000" min="0" step="1000000" />
+                            {errors.outstanding_balance && <p className="form-error">{errors.outstanding_balance}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Ngày giải ngân dự kiến/đã giải ngân</label>
+                            <input type="date" value={form.disbursement_date} onChange={e => set('disbursement_date', e.target.value)}
+                              className="form-input" />
+                          </div>
+                          <div>
+                            <label className="form-label">Ngày đến hạn trả nợ</label>
+                            <input type="date" value={form.maturity_date} onChange={e => set('maturity_date', e.target.value)}
+                              className="form-input" />
+                          </div>
+                          <div>
+                            <label className="form-label">Thời hạn vay (tháng)</label>
+                            <input type="number" value={form.loan_term_months} onChange={e => set('loan_term_months', e.target.value)}
+                              className="form-input" placeholder="36" min="1" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="form-label">Mục đích vay theo HĐ tín dụng</label>
+                            <textarea rows={2} value={form.loan_purpose} onChange={e => set('loan_purpose', e.target.value)}
+                              className="form-input resize-none"
+                              placeholder="Mua sắm máy móc, thiết bị phục vụ đổi mới công nghệ sản xuất..." />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Tài sản bảo đảm */}
+                      <div>
+                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100 flex items-center gap-2">
+                          <span className="w-6 h-6 rounded bg-blue-600 text-white text-xs flex items-center justify-center font-bold">3</span>
+                          Tài sản bảo đảm cho khoản vay
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="form-label">Mô tả tài sản bảo đảm <span className="text-red-500">*</span></label>
+                            <textarea rows={3} value={form.collateral_description} onChange={e => set('collateral_description', e.target.value)}
+                              className={`form-input resize-none ${errors.collateral_description ? 'border-red-400' : ''}`}
+                              placeholder="- Nhà xưởng tại KCN ABC, diện tích 2.000m²&#10;- Máy móc thiết bị dây chuyền sản xuất&#10;- Phương tiện vận tải: 03 xe ô tô tải" />
+                            {errors.collateral_description && <p className="form-error">{errors.collateral_description}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Tổng giá trị tài sản bảo đảm (VNĐ)</label>
+                            <input type="number" value={form.collateral_value} onChange={e => set('collateral_value', e.target.value)}
+                              className="form-input" placeholder="5000000000" min="0" step="1000000" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-xl border border-blue-200 p-4 text-sm text-blue-800">
+                        <strong>Lưu ý:</strong> Theo Nghị định 268/2025/NĐ-CP, doanh nghiệp phải không có nợ xấu tại tổ chức tín dụng và đảm bảo hoàn vốn với phương án trả nợ khả thi. Quỹ hỗ trợ tối đa <strong>5 tỷ VNĐ</strong>, tối thiểu <strong>100 triệu VNĐ</strong>.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <button type="button" onClick={handleBack} className="btn-secondary">← Quay lại</button>
+                    <button type="button" onClick={handleNext} className="btn-primary">
+                      Tiếp tục
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Project content (non-interest_subsidy) */}
+              {step === 3 && !isInterestSubsidy && (
+                <div className="space-y-5">
+                  <div className="card-flat border border-gray-200">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h2 className="font-heading font-bold text-lg text-gray-900">Nội dung hồ sơ</h2>
+                        <p className="text-gray-500 text-sm mt-0.5">{selectedProgram?.legal}</p>
+                      </div>
+                      <button type="button" onClick={handleBack} className="text-sm text-natif-blue hover:underline">← Quay lại</button>
                     </div>
 
                     <div className="space-y-5">
-                      {/* Common fields */}
-                      <div>
-                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
-                          Thông tin dự án / nhiệm vụ
-                        </h3>
+                      {/* Sponsorship */}
+                      {form.program_type === 'sponsorship' && (
                         <div className="space-y-4">
                           <div>
-                            <label className="form-label">Tên dự án / nhiệm vụ <span className="text-red-500">*</span></label>
+                            <label className="form-label">Tên nhiệm vụ KH&CN <span className="text-red-500">*</span></label>
                             <input type="text" value={form.project_name} onChange={e => set('project_name', e.target.value)}
-                              className={`form-input ${errors.project_name ? 'border-red-400' : ''}`}
-                              placeholder="Dự án nghiên cứu và phát triển công nghệ AI" />
-                            {errors.project_name && <p className="form-error">{errors.project_name}</p>}
+                              className="form-input" placeholder="Nghiên cứu ứng dụng AI trong sản xuất thông minh" />
                           </div>
                           <div>
                             <label className="form-label">Địa điểm thực hiện</label>
-                            <input type="text" value={form.project_address} onChange={e => set('project_address', e.target.value)}
-                              className="form-input" placeholder="Thành phố Hồ Chí Minh" />
+                            <input type="text" value={form.task_location} onChange={e => set('task_location', e.target.value)}
+                              className="form-input" placeholder="TP. Hồ Chí Minh" />
                           </div>
                           <div>
-                            <label className="form-label">Mục tiêu dự án <span className="text-red-500">*</span></label>
+                            <label className="form-label">Mục tiêu nhiệm vụ <span className="text-red-500">*</span></label>
                             <textarea rows={3} value={form.project_objectives} onChange={e => set('project_objectives', e.target.value)}
-                              className={`form-input resize-none ${errors.project_objectives ? 'border-red-400' : ''}`}
-                              placeholder="Mô tả các mục tiêu chính của dự án..." />
-                            {errors.project_objectives && <p className="form-error">{errors.project_objectives}</p>}
+                              className="form-input resize-none" placeholder="Mục tiêu chính và các mục tiêu cụ thể..." />
                           </div>
                           <div>
-                            <label className="form-label">Nội dung dự án <span className="text-red-500">*</span></label>
+                            <label className="form-label">Nội dung nhiệm vụ <span className="text-red-500">*</span></label>
                             <textarea rows={4} value={form.project_content} onChange={e => set('project_content', e.target.value)}
-                              className={`form-input resize-none ${errors.project_content ? 'border-red-400' : ''}`}
-                              placeholder="Mô tả chi tiết nội dung và phạm vi thực hiện..." />
-                            {errors.project_content && <p className="form-error">{errors.project_content}</p>}
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                              <label className="form-label">Thời gian thực hiện</label>
-                              <input type="text" value={form.project_duration} onChange={e => set('project_duration', e.target.value)}
-                                className="form-input" placeholder="12 tháng (01/2026 - 12/2026)" />
-                            </div>
-                            <div>
-                              <label className="form-label">Số tiền yêu cầu (VNĐ) <span className="text-red-500">*</span></label>
-                              <input type="number" value={form.budget_requested} onChange={e => set('budget_requested', e.target.value)}
-                                className={`form-input ${errors.budget_requested ? 'border-red-400' : ''}`}
-                                placeholder="500000000" min="0" step="1000000" />
-                              {errors.budget_requested && <p className="form-error">{errors.budget_requested}</p>}
-                              {form.budget_requested && !isNaN(Number(form.budget_requested)) && Number(form.budget_requested) > 0 && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Tương đương: {formatCurrency(Number(form.budget_requested))} VNĐ
-                                </p>
-                              )}
-                            </div>
+                              className="form-input resize-none" placeholder="Mô tả chi tiết các nội dung thực hiện..." />
                           </div>
                           <div>
-                            <label className="form-label">Dự toán kinh phí chi tiết</label>
+                            <label className="form-label">Phương pháp thực hiện</label>
+                            <textarea rows={3} value={form.task_methodology} onChange={e => set('task_methodology', e.target.value)}
+                              className="form-input resize-none" placeholder="Phương pháp và cách thức thực hiện..." />
+                          </div>
+                          <div>
+                            <label className="form-label">Giới thiệu tổ chức/cá nhân</label>
+                            <textarea rows={3} value={form.org_description} onChange={e => set('org_description', e.target.value)}
+                              className="form-input resize-none" placeholder="Lịch sử, năng lực, kinh nghiệm..." />
+                          </div>
+                          <div>
+                            <label className="form-label">Kinh nghiệm liên quan</label>
+                            <textarea rows={3} value={form.org_experience} onChange={e => set('org_experience', e.target.value)}
+                              className="form-input resize-none" placeholder="Các dự án, nhiệm vụ đã thực hiện..." />
+                          </div>
+                          <div>
+                            <label className="form-label">Số tiền yêu cầu (VNĐ) <span className="text-red-500">*</span></label>
+                            <input type="number" value={form.total_investment} onChange={e => set('total_investment', e.target.value)}
+                              className="form-input" placeholder="500000000" min="0" step="1000000" />
+                          </div>
+                          <div>
+                            <label className="form-label">Dự toán chi phí chi tiết</label>
                             <textarea rows={3} value={form.budget_breakdown} onChange={e => set('budget_breakdown', e.target.value)}
                               className="form-input resize-none"
                               placeholder="- Chi phí nhân công: ...&#10;- Chi phí thiết bị: ...&#10;- Chi phí khác: ..." />
                           </div>
                           <div>
-                            <label className="form-label">Kết quả dự kiến <span className="text-red-500">*</span></label>
-                            <textarea rows={3} value={form.expected_results} onChange={e => set('expected_results', e.target.value)}
-                              className={`form-input resize-none ${errors.expected_results ? 'border-red-400' : ''}`}
-                              placeholder="Sản phẩm đầu ra, chỉ tiêu kinh tế-xã hội dự kiến..." />
-                            {errors.expected_results && <p className="form-error">{errors.expected_results}</p>}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Interest Subsidy specific */}
-                      {form.program_type === 'interest_subsidy' && (
-                        <div>
-                          <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
-                            Thông tin khoản vay
-                          </h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                              <label className="form-label">Tên ngân hàng <span className="text-red-500">*</span></label>
-                              <input type="text" value={form.bank_name} onChange={e => set('bank_name', e.target.value)}
-                                className={`form-input ${errors.bank_name ? 'border-red-400' : ''}`}
-                                placeholder="Ngân hàng TMCP Ngoại Thương Việt Nam" />
-                              {errors.bank_name && <p className="form-error">{errors.bank_name}</p>}
-                            </div>
-                            <div>
-                              <label className="form-label">Chi nhánh</label>
-                              <input type="text" value={form.bank_branch} onChange={e => set('bank_branch', e.target.value)}
-                                className="form-input" placeholder="Chi nhánh TP.HCM" />
-                            </div>
-                            <div>
-                              <label className="form-label">Số hợp đồng tín dụng</label>
-                              <input type="text" value={form.loan_contract_no} onChange={e => set('loan_contract_no', e.target.value)}
-                                className="form-input" placeholder="001/HDTD/2026" />
-                            </div>
-                            <div>
-                              <label className="form-label">Ngày ký hợp đồng</label>
-                              <input type="date" value={form.contract_date} onChange={e => set('contract_date', e.target.value)}
-                                className="form-input" />
-                            </div>
-                            <div>
-                              <label className="form-label">Số tiền vay (VNĐ) <span className="text-red-500">*</span></label>
-                              <input type="number" value={form.loan_amount} onChange={e => set('loan_amount', e.target.value)}
-                                className={`form-input ${errors.loan_amount ? 'border-red-400' : ''}`}
-                                placeholder="3000000000" min="0" step="1000000" />
-                              {errors.loan_amount && <p className="form-error">{errors.loan_amount}</p>}
-                            </div>
-                            <div>
-                              <label className="form-label">Số tài khoản vay</label>
-                              <input type="text" value={form.loan_account} onChange={e => set('loan_account', e.target.value)}
-                                className="form-input" placeholder="1234567890123" />
-                            </div>
-                            <div>
-                              <label className="form-label">Lãi suất vay (%/năm)</label>
-                              <input type="text" value={form.interest_rate} onChange={e => set('interest_rate', e.target.value)}
-                                className="form-input" placeholder="8.5" />
-                            </div>
-                          </div>
-                          <div className="mt-4">
-                            <label className="form-label">Cam kết của doanh nghiệp</label>
-                            <textarea rows={3} value={form.commitment_content} onChange={e => set('commitment_content', e.target.value)}
-                              className="form-input resize-none"
-                              placeholder="Doanh nghiệp cam kết sử dụng vốn vay đúng mục đích, hoàn trả nợ đúng hạn và chịu trách nhiệm trước pháp luật..." />
+                            <label className="form-label">Kết quả dự kiến</label>
+                            <textarea rows={3} value={form.economic_impact} onChange={e => set('economic_impact', e.target.value)}
+                              className="form-input resize-none" placeholder="Sản phẩm, chỉ tiêu kinh tế-xã hội dự kiến..." />
                           </div>
                         </div>
                       )}
 
-                      {/* Sponsorship specific */}
-                      {form.program_type === 'sponsorship' && (
-                        <div>
-                          <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
-                            Thông tin nhiệm vụ
-                          </h3>
-                          <div className="space-y-4">
-                            <div>
-                              <label className="form-label">Địa điểm thực hiện nhiệm vụ</label>
-                              <input type="text" value={form.task_location} onChange={e => set('task_location', e.target.value)}
-                                className="form-input" placeholder="TP. Hồ Chí Minh" />
-                            </div>
-                            <div>
-                              <label className="form-label">Phương pháp thực hiện</label>
-                              <textarea rows={3} value={form.task_methodology} onChange={e => set('task_methodology', e.target.value)}
-                                className="form-input resize-none"
-                                placeholder="Mô tả phương pháp và cách thức thực hiện nhiệm vụ..." />
-                            </div>
-                            <div>
-                              <label className="form-label">Giới thiệu về tổ chức/cá nhân</label>
-                              <textarea rows={3} value={form.org_description} onChange={e => set('org_description', e.target.value)}
-                                className="form-input resize-none"
-                                placeholder="Lịch sử, năng lực và kinh nghiệm của tổ chức/cá nhân đăng ký..." />
-                            </div>
-                            <div>
-                              <label className="form-label">Kinh nghiệm liên quan</label>
-                              <textarea rows={3} value={form.org_experience} onChange={e => set('org_experience', e.target.value)}
-                                className="form-input resize-none"
-                                placeholder="Các dự án, nhiệm vụ đã thực hiện liên quan..." />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Voucher specific */}
+                      {/* Voucher */}
                       {form.program_type === 'voucher' && (
-                        <div>
-                          <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
-                            Thông tin dịch vụ
-                          </h3>
-                          <div className="space-y-4">
-                            <div>
-                              <label className="form-label">Loại dịch vụ cần hỗ trợ <span className="text-red-500">*</span></label>
-                              <select value={form.service_type} onChange={e => set('service_type', e.target.value)}
-                                className={`form-input ${errors.service_type ? 'border-red-400' : ''}`}>
-                                <option value="">-- Chọn loại dịch vụ --</option>
-                                <option value="tech_service">Dịch vụ công nghệ</option>
-                                <option value="training">Đào tạo, tập huấn</option>
-                                <option value="consulting">Tư vấn chuyên gia</option>
-                                <option value="ip_service">Dịch vụ sở hữu trí tuệ</option>
-                                <option value="other">Khác</option>
-                              </select>
-                              {errors.service_type && <p className="form-error">{errors.service_type}</p>}
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div>
-                                <label className="form-label">Đơn vị cung cấp dịch vụ <span className="text-red-500">*</span></label>
-                                <input type="text" value={form.service_provider} onChange={e => set('service_provider', e.target.value)}
-                                  className={`form-input ${errors.service_provider ? 'border-red-400' : ''}`}
-                                  placeholder="Công ty TNHH Dịch vụ ABC" />
-                                {errors.service_provider && <p className="form-error">{errors.service_provider}</p>}
-                              </div>
-                              <div>
-                                <label className="form-label">Chi phí dịch vụ (VNĐ)</label>
-                                <input type="number" value={form.service_cost} onChange={e => set('service_cost', e.target.value)}
-                                  className="form-input" placeholder="50000000" min="0" step="1000000" />
-                              </div>
-                            </div>
-                            <div>
-                              <label className="form-label">Thông tin liên hệ đơn vị cung cấp</label>
-                              <input type="text" value={form.provider_contact} onChange={e => set('provider_contact', e.target.value)}
-                                className="form-input" placeholder="Địa chỉ, điện thoại, email đơn vị cung cấp" />
-                            </div>
-                            <div>
-                              <label className="form-label">Cam kết sử dụng voucher</label>
-                              <textarea rows={3} value={form.commitment_use} onChange={e => set('commitment_use', e.target.value)}
-                                className="form-input resize-none"
-                                placeholder="Cam kết sử dụng voucher đúng mục đích, hoàn thành báo cáo sử dụng..." />
-                            </div>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="form-label">Tên dự án/dịch vụ <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.project_name} onChange={e => set('project_name', e.target.value)}
+                              className="form-input" placeholder="Đào tạo chuyển đổi số cho doanh nghiệp" />
+                          </div>
+                          <div>
+                            <label className="form-label">Loại dịch vụ <span className="text-red-500">*</span></label>
+                            <select value={form.service_type} onChange={e => set('service_type', e.target.value)} className="form-input">
+                              <option value="">-- Chọn loại dịch vụ --</option>
+                              <option value="tech_service">Dịch vụ công nghệ</option>
+                              <option value="training">Đào tạo, tập huấn</option>
+                              <option value="consulting">Tư vấn chuyên gia</option>
+                              <option value="ip_service">Dịch vụ sở hữu trí tuệ</option>
+                              <option value="other">Khác</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="form-label">Đơn vị cung cấp dịch vụ <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.service_provider} onChange={e => set('service_provider', e.target.value)}
+                              className="form-input" placeholder="Công ty TNHH Dịch vụ Công nghệ ABC" />
+                          </div>
+                          <div>
+                            <label className="form-label">Thông tin liên hệ đơn vị cung cấp</label>
+                            <input type="text" value={form.provider_contact} onChange={e => set('provider_contact', e.target.value)}
+                              className="form-input" placeholder="Địa chỉ, điện thoại, email" />
+                          </div>
+                          <div>
+                            <label className="form-label">Chi phí dịch vụ (VNĐ)</label>
+                            <input type="number" value={form.service_cost} onChange={e => set('service_cost', e.target.value)}
+                              className="form-input" placeholder="50000000" min="0" step="1000000" />
+                          </div>
+                          <div>
+                            <label className="form-label">Mục tiêu dự án</label>
+                            <textarea rows={3} value={form.project_objectives} onChange={e => set('project_objectives', e.target.value)}
+                              className="form-input resize-none" placeholder="Mục tiêu của việc sử dụng voucher..." />
+                          </div>
+                          <div>
+                            <label className="form-label">Cam kết sử dụng voucher</label>
+                            <textarea rows={3} value={form.commitment_use} onChange={e => set('commitment_use', e.target.value)}
+                              className="form-input resize-none" placeholder="Cam kết sử dụng đúng mục đích, hoàn thành báo cáo..." />
                           </div>
                         </div>
                       )}
 
-                      {/* Ecosystem specific */}
+                      {/* Ecosystem */}
                       {form.program_type === 'ecosystem' && (
-                        <div>
-                          <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
-                            Thông tin tổ chức hỗ trợ khởi nghiệp
-                          </h3>
-                          <div className="space-y-4">
-                            <div>
-                              <label className="form-label">Loại công nhận</label>
-                              <select value={form.org_recognition_type} onChange={e => set('org_recognition_type', e.target.value)}
-                                className="form-input">
-                                <option value="">-- Chọn loại công nhận --</option>
-                                <option value="incubator">Tổ chức ươm tạo</option>
-                                <option value="accelerator">Tổ chức gia tốc</option>
-                                <option value="coworking">Không gian làm việc chung</option>
-                                <option value="investor">Tổ chức đầu tư mạo hiểm</option>
-                                <option value="supporter">Tổ chức hỗ trợ khởi nghiệp khác</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="form-label">Mô tả hoạt động <span className="text-red-500">*</span></label>
-                              <textarea rows={4} value={form.activities_description} onChange={e => set('activities_description', e.target.value)}
-                                className={`form-input resize-none ${errors.activities_description ? 'border-red-400' : ''}`}
-                                placeholder="Mô tả các hoạt động hỗ trợ khởi nghiệp sáng tạo đã và đang thực hiện..." />
-                              {errors.activities_description && <p className="form-error">{errors.activities_description}</p>}
-                            </div>
-                            <div>
-                              <label className="form-label">Kết quả hoạt động</label>
-                              <textarea rows={3} value={form.activities_results} onChange={e => set('activities_results', e.target.value)}
-                                className="form-input resize-none"
-                                placeholder="Các kết quả đã đạt được: số startup hỗ trợ, số việc làm tạo ra, tác động xã hội..." />
-                            </div>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="form-label">Tên tổ chức/hoạt động <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.project_name} onChange={e => set('project_name', e.target.value)}
+                              className="form-input" placeholder="Trung tâm ươm tạo khởi nghiệp sáng tạo ABC" />
+                          </div>
+                          <div>
+                            <label className="form-label">Loại công nhận</label>
+                            <select value={form.org_recognition_type} onChange={e => set('org_recognition_type', e.target.value)} className="form-input">
+                              <option value="">-- Chọn loại --</option>
+                              <option value="incubator">Tổ chức ươm tạo</option>
+                              <option value="accelerator">Tổ chức gia tốc</option>
+                              <option value="coworking">Không gian làm việc chung</option>
+                              <option value="investor">Tổ chức đầu tư mạo hiểm</option>
+                              <option value="supporter">Tổ chức hỗ trợ khởi nghiệp khác</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="form-label">Mô tả hoạt động <span className="text-red-500">*</span></label>
+                            <textarea rows={4} value={form.activities_description} onChange={e => set('activities_description', e.target.value)}
+                              className="form-input resize-none"
+                              placeholder="Mô tả các hoạt động hỗ trợ khởi nghiệp sáng tạo..." />
+                          </div>
+                          <div>
+                            <label className="form-label">Kết quả hoạt động</label>
+                            <textarea rows={3} value={form.activities_results} onChange={e => set('activities_results', e.target.value)}
+                              className="form-input resize-none"
+                              placeholder="Số startup hỗ trợ, số việc làm, tác động xã hội..." />
+                          </div>
+                          <div>
+                            <label className="form-label">Mục tiêu dự án</label>
+                            <textarea rows={3} value={form.project_objectives} onChange={e => set('project_objectives', e.target.value)}
+                              className="form-input resize-none" placeholder="Mục tiêu phát triển hệ sinh thái..." />
+                          </div>
+                          <div>
+                            <label className="form-label">Số tiền yêu cầu (VNĐ)</label>
+                            <input type="number" value={form.total_investment} onChange={e => set('total_investment', e.target.value)}
+                              className="form-input" placeholder="1000000000" min="0" step="1000000" />
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Notice */}
-                  <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
-                    <div className="flex gap-3">
-                      <svg className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <div className="flex justify-between items-center">
+                    <button type="button" onClick={handleBack} className="btn-secondary">← Quay lại</button>
+                    <button type="button" onClick={handleNext} className="btn-primary">
+                      Tiếp tục
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
-                      <div className="text-sm text-blue-800">
-                        <strong>Căn cứ pháp lý:</strong> Hồ sơ được xem xét theo quy định tại{' '}
-                        {selectedProgram?.legal}. Sau khi gửi, hồ sơ sẽ được xem xét trong vòng{' '}
-                        <strong>5 ngày làm việc</strong>. Đội ngũ NATIF sẽ liên hệ qua email đã cung cấp.
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Project info (all programs) */}
+              {step === 4 && (
+                <div className="space-y-5">
+                  <div className="card-flat border border-gray-200">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h2 className="font-heading font-bold text-lg text-gray-900">
+                          {isInterestSubsidy ? 'Phần C: Thông tin dự án ĐMCT' : 'Thông tin dự án / nhiệm vụ'}
+                        </h2>
+                        <p className="text-gray-500 text-sm mt-0.5">
+                          {isInterestSubsidy ? 'Phần C: Nội dung và hiệu quả dự án đổi mới công nghệ' : selectedProgram?.legal}
+                        </p>
+                      </div>
+                      <button type="button" onClick={handleBack} className="text-sm text-natif-blue hover:underline">← Quay lại</button>
+                    </div>
+
+                    <div className="space-y-6">
+                      {/* Dự án */}
+                      <div>
+                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
+                          {isInterestSubsidy ? 'C.1. Thông tin dự án đổi mới công nghệ' : 'Thông tin dự án / nhiệm vụ'}
+                        </h3>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="form-label">Tên dự án đổi mới công nghệ <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.project_name} onChange={e => set('project_name', e.target.value)}
+                              className={`form-input ${errors.project_name ? 'border-red-400' : ''}`}
+                              placeholder="Dự án đổi mới công nghệ dây chuyền sản xuất thông minh" />
+                            {errors.project_name && <p className="form-error">{errors.project_name}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Địa điểm thực hiện dự án</label>
+                            <input type="text" value={form.project_address} onChange={e => set('project_address', e.target.value)}
+                              className="form-input" placeholder="Khu công nghiệp ABC, TP. Hồ Chí Minh" />
+                          </div>
+                          <div>
+                            <label className="form-label">Mục tiêu dự án <span className="text-red-500">*</span></label>
+                            <textarea rows={3} value={form.project_objectives} onChange={e => set('project_objectives', e.target.value)}
+                              className={`form-input resize-none ${errors.project_objectives ? 'border-red-400' : ''}`}
+                              placeholder="- Mục tiêu tổng quát: ...&#10;- Mục tiêu cụ thể: ..." />
+                            {errors.project_objectives && <p className="form-error">{errors.project_objectives}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Nội dung chính của dự án <span className="text-red-500">*</span></label>
+                            <textarea rows={4} value={form.project_content} onChange={e => set('project_content', e.target.value)}
+                              className={`form-input resize-none ${errors.project_content ? 'border-red-400' : ''}`}
+                              placeholder="Mô tả chi tiết các nội dung chính, phạm vi thực hiện..." />
+                            {errors.project_content && <p className="form-error">{errors.project_content}</p>}
+                          </div>
+                          {isInterestSubsidy && (
+                            <>
+                              <div>
+                                <label className="form-label">Công nghệ sử dụng / mục tiêu chuyển giao</label>
+                                <textarea rows={3} value={form.technology_description} onChange={e => set('technology_description', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Mô tả công nghệ mới, thiết bị, quy trình sản xuất..." />
+                              </div>
+                              <div>
+                                <label className="form-label">Lý do lựa chọn công nghệ</label>
+                                <textarea rows={2} value={form.technology_reason} onChange={e => set('technology_reason', e.target.value)}
+                                  className="form-input resize-none"
+                                  placeholder="Phân tích các yếu tố: phù hợp, hiệu quả, khả thi..." />
+                              </div>
+                            </>
+                          )}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="form-label">Thời gian thực hiện</label>
+                              <input type="text" value={form.project_duration} onChange={e => set('project_duration', e.target.value)}
+                                className="form-input" placeholder="18 tháng (01/2026 - 06/2027)" />
+                            </div>
+                            <div>
+                              <label className="form-label">Tổng mức đầu tư / dự toán (VNĐ) <span className="text-red-500">*</span></label>
+                              <input type="number" value={form.total_investment} onChange={e => set('total_investment', e.target.value)}
+                                className={`form-input ${errors.total_investment ? 'border-red-400' : ''}`}
+                                placeholder="5000000000" min="0" step="1000000" />
+                              {errors.total_investment && <p className="form-error">{errors.total_investment}</p>}
+                            </div>
+                          </div>
+                          {isInterestSubsidy && (
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                              <div>
+                                <label className="form-label">Vốn tự có (VNĐ) <span className="text-red-500">*</span></label>
+                                <input type="number" value={form.equity_contribution} onChange={e => set('equity_contribution', e.target.value)}
+                                  className={`form-input ${errors.equity_contribution ? 'border-red-400' : ''}`}
+                                  placeholder="2500000000" min="0" step="1000000" />
+                                {errors.equity_contribution && <p className="form-error">{errors.equity_contribution}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Vốn vay cần hỗ trợ lãi suất (VNĐ)</label>
+                                <input type="number" value={form.loan_portion} onChange={e => set('loan_portion', e.target.value)}
+                                  className="form-input"
+                                  placeholder="2500000000" min="0" step="1000000" />
+                              </div>
+                              <div>
+                                <label className="form-label">Nguồn khác (VNĐ)</label>
+                                <input type="number" value={form.other_funding} onChange={e => set('other_funding', e.target.value)}
+                                  className="form-input" placeholder="0" min="0" step="1000000" />
+                              </div>
+                            </div>
+                          )}
+                          <div>
+                            <label className="form-label">Dự toán chi phí chi tiết <span className="text-red-500">*</span></label>
+                            <textarea rows={4} value={form.budget_breakdown} onChange={e => set('budget_breakdown', e.target.value)}
+                              className={`form-input resize-none ${errors.budget_breakdown ? 'border-red-400' : ''}`}
+                              placeholder="- Chi phí máy móc, thiết bị: ... VNĐ&#10;- Chi phí nhân công: ... VNĐ&#10;- Chi phí vật liệu, nguyên liệu: ... VNĐ&#10;- Chi phí quản lý và khác: ... VNĐ&#10;- Tổng cộng: ... VNĐ" />
+                            {errors.budget_breakdown && <p className="form-error">{errors.budget_breakdown}</p>}
+                          </div>
+                          <div>
+                            <label className="form-label">Tiến độ thực hiện (các mốc chính) <span className="text-red-500">*</span></label>
+                            <textarea rows={3} value={form.implementation_milestones} onChange={e => set('implementation_milestones', e.target.value)}
+                              className={`form-input resize-none ${errors.implementation_milestones ? 'border-red-400' : ''}`}
+                              placeholder="Q1/2026: Hoàn tất thiết kế, đặt hàng thiết bị&#10;Q2/2026: Lắp đặt, vận hành thử nghiệm&#10;Q3/2026: Chạy thử, đào tạo nhân sự&#10;Q4/2026: Nghiệm thu, bàn giao" />
+                            {errors.implementation_milestones && <p className="form-error">{errors.implementation_milestones}</p>}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Hiệu quả */}
+                      {isInterestSubsidy && (
+                        <div>
+                          <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
+                            C.2. Hiệu quả dự kiến
+                          </h3>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="form-label">Dự kiến doanh thu (VNĐ)</label>
+                              <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                  <span className="text-xs text-gray-500">Năm 1</span>
+                                  <input type="number" value={form.expected_revenue_y1} onChange={e => set('expected_revenue_y1', e.target.value)}
+                                    className={`form-input ${errors.expected_revenue_y1 ? 'border-red-400' : ''}`}
+                                    placeholder="5.000.000.000" min="0" step="1000000" />
+                                  {errors.expected_revenue_y1 && <p className="form-error">{errors.expected_revenue_y1}</p>}
+                                </div>
+                                <div>
+                                  <span className="text-xs text-gray-500">Năm 2</span>
+                                  <input type="number" value={form.expected_revenue_y2} onChange={e => set('expected_revenue_y2', e.target.value)}
+                                    className="form-input" placeholder="7.000.000.000" min="0" step="1000000" />
+                                </div>
+                                <div>
+                                  <span className="text-xs text-gray-500">Năm 3</span>
+                                  <input type="number" value={form.expected_revenue_y3} onChange={e => set('expected_revenue_y3', e.target.value)}
+                                    className="form-input" placeholder="9.000.000.000" min="0" step="1000000" />
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="form-label">Dự kiến lợi nhuận sau thuế (VNĐ)</label>
+                              <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                  <span className="text-xs text-gray-500">Năm 1</span>
+                                  <input type="number" value={form.expected_profit_y1} onChange={e => set('expected_profit_y1', e.target.value)}
+                                    className="form-input" placeholder="500.000.000" min="0" step="1000000" />
+                                </div>
+                                <div>
+                                  <span className="text-xs text-gray-500">Năm 2</span>
+                                  <input type="number" value={form.expected_profit_y2} onChange={e => set('expected_profit_y2', e.target.value)}
+                                    className="form-input" placeholder="800.000.000" min="0" step="1000000" />
+                                </div>
+                                <div>
+                                  <span className="text-xs text-gray-500">Năm 3</span>
+                                  <input type="number" value={form.expected_profit_y3} onChange={e => set('expected_profit_y3', e.target.value)}
+                                    className="form-input" placeholder="1.200.000.000" min="0" step="1000000" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="form-label">Thời gian hoàn vốn dự kiến <span className="text-red-500">*</span></label>
+                                <input type="text" value={form.payback_period} onChange={e => set('payback_period', e.target.value)}
+                                  className={`form-input ${errors.payback_period ? 'border-red-400' : ''}`}
+                                  placeholder="36 tháng (3 năm)" />
+                                {errors.payback_period && <p className="form-error">{errors.payback_period}</p>}
+                              </div>
+                              <div>
+                                <label className="form-label">Năng lực kỹ thuật của doanh nghiệp</label>
+                                <input type="text" value={form.technical_capacity} onChange={e => set('technical_capacity', e.target.value)}
+                                  className="form-input"
+                                  placeholder="15 kỹ sư, 3 chuyên gia, 5 năm kinh nghiệm..." />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="form-label">Hiệu quả kinh tế dự kiến</label>
+                              <textarea rows={2} value={form.economic_impact} onChange={e => set('economic_impact', e.target.value)}
+                                className="form-input resize-none"
+                                placeholder="Tăng năng suất 30%, giảm chi phí sản xuất 15%, mở rộng thị trường..." />
+                            </div>
+                            <div>
+                              <label className="form-label">Hiệu quả xã hội dự kiến</label>
+                              <textarea rows={2} value={form.social_impact} onChange={e => set('social_impact', e.target.value)}
+                                className="form-input resize-none"
+                                placeholder="Tạo thêm 20 việc làm, đào tạo nhân lực công nghệ cao, giảm ô nhiễm môi trường..." />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Cam kết */}
+                      <div>
+                        <h3 className="font-heading font-semibold text-sm text-gray-700 mb-3 pb-2 border-b border-gray-100">
+                          Cam kết của doanh nghiệp
+                        </h3>
+                        <div>
+                          <label className="form-label">Nội dung cam kết <span className="text-red-500">*</span></label>
+                          <textarea rows={4} value={form.commitment_content} onChange={e => set('commitment_content', e.target.value)}
+                            className={`form-input resize-none ${errors.commitment_content ? 'border-red-400' : ''}`}
+                            placeholder={`Doanh nghiệp cam kết:&#10;1. Sử dụng vốn vay đúng mục đích đổi mới công nghệ&#10;2. Hoàn trả nợ gốc và lãi đúng hạn theo quy định&#10;3. Thực hiện báo cáo tiến độ theo yêu cầu của Quỹ NATIF&#10;4. Chịu trách nhiệm trước pháp luật về tính chính xác của hồ sơ`} />
+                          {errors.commitment_content && <p className="form-error">{errors.commitment_content}</p>}
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {errorMsg && (
-                    <div className="bg-red-50 rounded-xl border border-red-200 p-4 text-sm text-red-700">
-                      {errorMsg}
+                    <div className="bg-red-50 rounded-xl border border-red-200 p-4 text-sm text-red-700">{errorMsg}</div>
+                  )}
+
+                  <div className="flex justify-between items-center">
+                    <button type="button" onClick={handleBack} className="btn-secondary">← Quay lại</button>
+                    <button type="button" onClick={handleNext} className="btn-primary">
+                      Tiếp tục
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Documents (interest_subsidy only) */}
+              {step === 5 && isInterestSubsidy && (
+                <div className="space-y-5">
+                  <div className="card-flat border border-gray-200">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h2 className="font-heading font-bold text-lg text-gray-900">
+                          Phần E: Tài liệu đính kèm
+                        </h2>
+                        <p className="text-gray-500 text-sm mt-0.5">
+                          Đánh dấu các tài liệu đã chuẩn bị. Bản sao phải có công chứng theo quy định.
+                        </p>
+                      </div>
+                      <button type="button" onClick={handleBack} className="text-sm text-natif-blue hover:underline">← Quay lại</button>
                     </div>
+
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-600">
+                        Đánh dấu <strong className="text-red-500">*</strong> = bắt buộc theo Nghị định 268/2025/NĐ-CP (Phụ lục II).
+                        Các tài liệu cần nộp bản có công chứng hoặc chứng thực.
+                      </p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {[
+                          { key: 'doc_dkkd' as keyof FormData, label: 'Đơn đăng ký kinh doanh (bản sao công chứng)', required: true, note: 'ĐKKD còn hiệu lực' },
+                          { key: 'doc_id_copy' as keyof FormData, label: 'Bản sao CCCD/CMND người đại diện', required: true, note: 'Công chứng trong vòng 6 tháng' },
+                          { key: 'doc_financial_report' as keyof FormData, label: 'Báo cáo tài chính 2 năm gần nhất', required: true, note: 'Có xác nhận của cơ quan thuế' },
+                          { key: 'doc_credit_contract' as keyof FormData, label: 'Hợp đồng tín dụng (bản sao công chứng)', required: false, note: 'Bản gốc để đối chiếu khi cần' },
+                          { key: 'doc_no_bad_debt' as keyof FormData, label: 'Giấy xác nhận không nợ xấu', required: false, note: 'Xác nhận từ ngân hàng cho vay' },
+                          { key: 'doc_business_plan' as keyof FormData, label: 'Phương án sản xuất kinh doanh / ĐMCT', required: false, note: 'Chi tiết theo mẫu Quỹ' },
+                          { key: 'doc_collateral' as keyof FormData, label: 'Hồ sơ pháp lý tài sản bảo đảm', required: false, note: 'Sổ đỏ, giấy tờ xe, hợp đồng...' },
+                          { key: 'doc_budget_approved' as keyof FormData, label: 'Bảng dự toán chi phí dự án', required: false, note: 'Đã phê duyệt nội bộ' },
+                          { key: 'doc_commitment' as keyof FormData, label: 'Cam kết hoàn vốn (theo mẫu Quỹ)', required: true, note: 'Có chữ ký và đóng dấu' },
+                          { key: 'doc_board_resolution' as keyof FormData, label: 'Biên bản họp HĐQT/HĐTV', required: false, note: 'Đối với công ty cổ phần' },
+                          { key: 'doc_other' as keyof FormData, label: 'Tài liệu khác (nếu có)', required: false, note: 'Theo yêu cầu của Quỹ' },
+                        ].map((doc) => (
+                          <div key={doc.key}
+                            className={`flex items-start gap-3 rounded-lg p-3 border transition-colors
+                              ${errors[doc.key] ? 'border-red-300 bg-red-50' : form[doc.key] ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-white'}`}>
+                            <input type="checkbox" id={doc.key} checked={!!form[doc.key]}
+                              onChange={e => set(doc.key, e.target.checked)}
+                              className="w-4 h-4 text-natif-blue rounded border-gray-300 mt-0.5 shrink-0" />
+                            <label htmlFor={doc.key} className="text-sm cursor-pointer flex-1">
+                              <span className={`font-medium ${doc.required ? 'text-gray-900' : 'text-gray-700'}`}>
+                                {doc.label}
+                                {doc.required && <span className="text-red-500 ml-1">*</span>}
+                              </span>
+                              <span className="text-xs text-gray-400 block mt-0.5">{doc.note}</span>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+
+                      {form.doc_other && (
+                        <div>
+                          <label className="form-label">Mô tả tài liệu khác</label>
+                          <input type="text" value={form.doc_other_note} onChange={e => set('doc_other_note', e.target.value)}
+                            className="form-input" placeholder="VD: Giấy phép kinh doanh đặc biệt, chứng nhận chất lượng..." />
+                        </div>
+                      )}
+
+                      <div className="bg-amber-50 rounded-xl border border-amber-200 p-4 text-sm text-amber-800">
+                        <strong>Lưu ý quan trọng:</strong> Hồ sơ xin hỗ trợ lãi suất cần gửi kèm bản gốc hoặc bản sao có công chứng các tài liệu trên.
+                        Quỹ NATIF có quyền yêu cầu bổ sung tài liệu trong quá trình thẩm định. Thời gian xử lý: <strong>5 ngày làm việc</strong> kể từ khi hồ sơ đầy đủ.
+                      </div>
+                    </div>
+                  </div>
+
+                  {errorMsg && (
+                    <div className="bg-red-50 rounded-xl border border-red-200 p-4 text-sm text-red-700">{errorMsg}</div>
                   )}
 
                   <div className="flex justify-between items-center">
