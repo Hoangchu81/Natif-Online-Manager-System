@@ -645,8 +645,8 @@ export default function AboutPage() {
                 <div className="space-y-4">
                   {[
                     { icon: '📍', label: 'Địa chỉ', value: 'Tầng 15, Tòa nhà Center Building, 1 Nguyễn Trung Trực, Quận 1, TP. Hồ Chí Minh' },
-                    { icon: '📞', label: 'Điện thoại', value: '(028) 3829 1234' },
-                    { icon: '📧', label: 'Email', value: 'contact@natif.vn' },
+                    { icon: '📞', label: 'Điện thoại', value: '0913.060.581' },
+                    { icon: '📧', label: 'Email', value: 'info@natif.vn' },
                     { icon: '🌐', label: 'Website', value: 'natif.gov.vn' },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-3">

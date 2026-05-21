@@ -231,8 +231,8 @@ export default function PrivacyPage() {
                   </svg>
                   <p className="text-sm text-amber-800">
                     Để thực hiện quyền của bạn, vui lòng liên hệ qua email{' '}
-                    <a href="mailto:contact@natif.vn" className="font-medium underline">contact@natif.vn</a>{' '}
-                    hoặc gọi <strong>0913-060-581</strong>. Chúng tôi sẽ phản hồi trong vòng{' '}
+                    <a href="mailto:info@natif.vn" className="font-medium underline">info@natif.vn</a>{' '}
+                    hoặc gọi <strong>0913.060.581</strong>. Chúng tôi sẽ phản hồi trong vòng{' '}
                     <strong>72 giờ</strong>.
                   </p>
                 </div>
@@ -325,8 +325,8 @@ export default function PrivacyPage() {
                 <div className="bg-natif-blue/5 rounded-xl p-5 space-y-2">
                   <p className="font-semibold text-gray-900">Cơ quan điều hành Quỹ Đổi mới công nghệ quốc gia (NATIF)</p>
                   <p>📍 Tầng 5, 113 Trần Duy Hưng, Phường Yên Hòa, Quận Cầu Giấy, Hà Nội</p>
-                  <p>📧 <a href="mailto:contact@natif.vn" className="text-natif-blue hover:underline">contact@natif.vn</a></p>
-                  <p>📞 0913-060-581</p>
+                  <p>📧 <a href="mailto:info@natif.vn" className="text-natif-blue hover:underline">info@natif.vn</a></p>
+                  <p>📞 0913.060.581</p>
                 </div>
                 <div className="bg-amber-50 rounded-xl p-4 text-amber-800 text-xs">
                   <strong>Lưu ý:</strong> Nếu bạn cho rằng Quỹ xử lý dữ liệu cá nhân không đúng
