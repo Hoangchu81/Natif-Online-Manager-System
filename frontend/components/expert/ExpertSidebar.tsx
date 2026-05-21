@@ -13,6 +13,7 @@ const menuItems = [
   { href: '/expert/awards', label: 'Giải thưởng' },
   { href: '/expert/books', label: 'Sách chuyên khảo đã xuất bản' },
   { href: '/expert/complete', label: 'Hoàn thành và xuất lý lịch' },
+  { href: '/expert/assignments', label: 'Đề tài phản biện', divider: true },
 ];
 
 export default function ExpertSidebar() {
@@ -33,19 +34,21 @@ export default function ExpertSidebar() {
       </div>
       <nav className="p-3 space-y-1">
         {menuItems.map(item => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
-                isActive
-                  ? 'bg-natif-blue/10 text-natif-blue font-semibold'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              {item.label}
-            </Link>
+            <div key={item.href}>
+              {'divider' in item && item.divider && <div className="border-t border-gray-200 my-3" />}
+              <Link
+                href={item.href}
+                className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
+                  isActive
+                    ? 'bg-natif-blue/10 text-natif-blue font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {item.label}
+              </Link>
+            </div>
           );
         })}
       </nav>

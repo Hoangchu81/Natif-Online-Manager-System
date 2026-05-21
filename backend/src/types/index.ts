@@ -3,7 +3,7 @@ export interface User {
   email: string;
   password_hash: string;
   full_name: string;
-  role: 'admin' | 'user' | 'expert';
+  role: 'admin' | 'moderator' | 'enterprise' | 'expert' | 'officer' | 'dept_head' | 'director' | 'clerk';
   phone?: string;
   company?: string;
   created_at: Date;
@@ -186,5 +186,46 @@ export interface ExpertBook {
   isbn?: string;
   notes?: string;
   sort_order: number;
+  created_at: Date;
+}
+
+export interface ExpertAssignment {
+  id: string;
+  application_id: string;
+  expert_id: string;
+  assigned_by: string;
+  assigned_at: Date;
+  deadline?: string;
+  status: 'pending' | 'accepted' | 'completed' | 'declined';
+  created_at: Date;
+}
+
+export interface ExpertReview {
+  id: string;
+  assignment_id: string;
+  expert_id: string;
+  application_id: string;
+  score_innovation?: number;
+  score_feasibility?: number;
+  score_impact?: number;
+  score_budget?: number;
+  score_team?: number;
+  overall_score?: number;
+  recommendation?: 'approve' | 'reject' | 'revise';
+  strengths?: string;
+  weaknesses?: string;
+  comments?: string;
+  submitted_at?: Date;
+  created_at: Date;
+}
+
+export interface WorkflowEntry {
+  id: string;
+  application_id: string;
+  from_status?: string;
+  to_status: string;
+  action_by: string;
+  action_role: string;
+  notes?: string;
   created_at: Date;
 }

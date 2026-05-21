@@ -25,6 +25,15 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
   }
 }
 
+export function requireRole(...roles: string[]) {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.userRole || !roles.includes(req.userRole)) {
+      return res.status(403).json({ error: 'Không có quyền truy cập' });
+    }
+    next();
+  };
+}
+
 export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction) {
   if (req.userRole !== 'admin') {
     return res.status(403).json({ error: 'Yêu cầu quyền quản trị' });

@@ -51,7 +51,7 @@ async function setup() {
       email VARCHAR(255) UNIQUE NOT NULL,
       password_hash VARCHAR(255) NOT NULL,
       full_name VARCHAR(255) NOT NULL,
-      role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('admin','user','expert')),
+      role VARCHAR(20) DEFAULT 'enterprise' CHECK (role IN ('admin','moderator','enterprise','expert','officer','dept_head','director','clerk')),
       phone VARCHAR(50),
       company VARCHAR(255),
       created_at TIMESTAMP DEFAULT NOW(),
@@ -352,6 +352,57 @@ async function setup() {
   `);
   console.log('Table: expert_books');
 
+  // Assignment & Review tables
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_assignments (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      application_id UUID REFERENCES applications(id) ON DELETE CASCADE,
+      expert_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      assigned_by UUID REFERENCES users(id),
+      assigned_at TIMESTAMP DEFAULT NOW(),
+      deadline DATE,
+      status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','accepted','completed','declined')),
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_assignments');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_reviews (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      assignment_id UUID REFERENCES expert_assignments(id) ON DELETE CASCADE,
+      expert_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      application_id UUID REFERENCES applications(id) ON DELETE CASCADE,
+      score_innovation INTEGER CHECK (score_innovation BETWEEN 1 AND 10),
+      score_feasibility INTEGER CHECK (score_feasibility BETWEEN 1 AND 10),
+      score_impact INTEGER CHECK (score_impact BETWEEN 1 AND 10),
+      score_budget INTEGER CHECK (score_budget BETWEEN 1 AND 10),
+      score_team INTEGER CHECK (score_team BETWEEN 1 AND 10),
+      overall_score DECIMAL(3,1),
+      recommendation VARCHAR(20) CHECK (recommendation IN ('approve','reject','revise')),
+      strengths TEXT,
+      weaknesses TEXT,
+      comments TEXT,
+      submitted_at TIMESTAMP,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_reviews');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS application_workflow (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      application_id UUID REFERENCES applications(id) ON DELETE CASCADE,
+      from_status VARCHAR(30),
+      to_status VARCHAR(30) NOT NULL,
+      action_by UUID REFERENCES users(id),
+      action_role VARCHAR(20),
+      notes TEXT,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: application_workflow');
+
   // Create indexes
   await pool.query('CREATE INDEX IF NOT EXISTS idx_applications_user ON applications(user_id)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status)');
@@ -366,18 +417,43 @@ async function setup() {
   await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_patents_profile ON expert_patents(expert_profile_id)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_awards_profile ON expert_awards(expert_profile_id)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_books_profile ON expert_books(expert_profile_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_assignments_app ON expert_assignments(application_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_assignments_expert ON expert_assignments(expert_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_reviews_app ON expert_reviews(application_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_reviews_expert ON expert_reviews(expert_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_workflow_app ON application_workflow(application_id)');
 
   console.log('Indexes created');
 
   // Create expert user if not exists
   const expertExists = await pool.query("SELECT id FROM users WHERE email = 'expert@natif.gov.vn'");
   if (!expertExists.rows.length) {
-    const hash = await bcrypt.hash('expert123', 12);
+    const hash = await bcrypt.hash('Expert@Natif2026', 12);
     await pool.query(
       `INSERT INTO users (email, password_hash, full_name, role, phone, company) VALUES ($1,$2,$3,$4,$5,$6)`,
       ['expert@natif.gov.vn', hash, 'Chuyên gia mẫu', 'expert', '0912345678', 'Trường Đại học Bách khoa Hà Nội']
     );
-    console.log('Expert user created: expert@natif.gov.vn / expert123');
+    console.log('Expert user created: expert@natif.gov.vn');
+  }
+
+  // Create role-based seed accounts
+  const seedAccounts = [
+    { email: 'officer@natif.gov.vn', name: 'Chuyên viên Quỹ', role: 'officer' },
+    { email: 'clerk@natif.gov.vn', name: 'Văn thư Quỹ', role: 'clerk' },
+    { email: 'depthead@natif.gov.vn', name: 'Trưởng phòng', role: 'dept_head' },
+    { email: 'director@natif.gov.vn', name: 'Giám đốc Quỹ', role: 'director' },
+    { email: 'moderator@natif.gov.vn', name: 'Moderator', role: 'moderator' },
+  ];
+  for (const acc of seedAccounts) {
+    const exists = await pool.query('SELECT id FROM users WHERE email = $1', [acc.email]);
+    if (!exists.rows.length) {
+      const hash = await bcrypt.hash('Natif@2026', 12);
+      await pool.query(
+        `INSERT INTO users (email, password_hash, full_name, role, company) VALUES ($1,$2,$3,$4,$5)`,
+        [acc.email, hash, acc.name, acc.role, 'Quỹ Đổi mới công nghệ quốc gia']
+      );
+      console.log(`Created: ${acc.email} (${acc.role})`);
+    }
   }
 
   console.log('Database setup complete!');

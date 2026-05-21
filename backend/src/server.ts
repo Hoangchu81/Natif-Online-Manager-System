@@ -3,13 +3,16 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 
-import { authenticate, requireAdmin, requireExpert } from './middleware/auth.js';
+import { authenticate, requireAdmin, requireExpert, requireRole } from './middleware/auth.js';
 import * as authRoutes from './routes/auth.js';
 import * as applicationRoutes from './routes/applications.js';
 import * as programRoutes from './routes/programs.js';
 import * as newsRoutes from './routes/news.js';
 import * as dashboardRoutes from './routes/dashboard.js';
 import * as expertRoutes from './routes/expert.js';
+import * as assignmentRoutes from './routes/assignments.js';
+import * as reviewRoutes from './routes/reviews.js';
+import * as workflowRoutes from './routes/workflow.js';
 
 dotenv.config();
 
@@ -93,6 +96,20 @@ app.get('/api/expert/books', authenticate, requireExpert, expertRoutes.books.lis
 app.post('/api/expert/books', authenticate, requireExpert, expertRoutes.books.create);
 app.put('/api/expert/books/:id', authenticate, requireExpert, expertRoutes.books.update);
 app.delete('/api/expert/books/:id', authenticate, requireExpert, expertRoutes.books.remove);
+
+// Protected routes - assignments & reviews
+app.post('/api/assignments', authenticate, requireRole('admin', 'moderator'), assignmentRoutes.createAssignment);
+app.get('/api/assignments', authenticate, requireRole('admin', 'moderator', 'expert', 'officer'), assignmentRoutes.listAssignments);
+app.put('/api/assignments/:id', authenticate, requireRole('admin', 'moderator', 'expert'), assignmentRoutes.updateAssignment);
+app.delete('/api/assignments/:id', authenticate, requireRole('admin', 'moderator'), assignmentRoutes.deleteAssignment);
+
+app.get('/api/reviews', authenticate, requireRole('admin', 'moderator', 'expert', 'officer', 'dept_head', 'director'), reviewRoutes.listReviews);
+app.post('/api/reviews', authenticate, requireExpert, reviewRoutes.createReview);
+app.get('/api/reviews/:id', authenticate, reviewRoutes.getReview);
+
+// Protected routes - workflow
+app.post('/api/workflow/transition', authenticate, requireRole('admin', 'clerk', 'officer', 'dept_head', 'director'), workflowRoutes.transition);
+app.get('/api/workflow/history/:applicationId', authenticate, workflowRoutes.getHistory);
 
 // 404
 app.use((_req, res) => {

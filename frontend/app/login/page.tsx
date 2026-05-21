@@ -35,13 +35,16 @@ export default function LoginPage() {
       setToken(data.token);
       setUser(data.user);
       login(data.token, data.user);
-      if (data.user.role === 'admin') {
-        router.push('/admin');
-      } else if (data.user.role === 'expert') {
-        router.push('/expert');
-      } else {
-        router.push('/');
-      }
+      const roleRoutes: Record<string, string> = {
+        admin: '/admin',
+        moderator: '/moderator',
+        expert: '/expert',
+        officer: '/officer',
+        clerk: '/clerk',
+        dept_head: '/dept-head',
+        director: '/director',
+      };
+      router.push(roleRoutes[data.user.role] || '/');
     } catch {
       setError('Không thể kết nối máy chủ. Vui lòng thử lại.');
       setLoading(false);
