@@ -31,3 +31,10 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
   }
   next();
 }
+
+export function requireExpert(req: AuthRequest, res: Response, next: NextFunction) {
+  if (req.userRole !== 'expert') {
+    return res.status(403).json({ error: 'Yêu cầu quyền chuyên gia' });
+  }
+  next();
+}

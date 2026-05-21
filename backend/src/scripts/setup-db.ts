@@ -51,7 +51,7 @@ async function setup() {
       email VARCHAR(255) UNIQUE NOT NULL,
       password_hash VARCHAR(255) NOT NULL,
       full_name VARCHAR(255) NOT NULL,
-      role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('admin','user')),
+      role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('admin','user','expert')),
       phone VARCHAR(50),
       company VARCHAR(255),
       created_at TIMESTAMP DEFAULT NOW(),
@@ -202,14 +202,184 @@ async function setup() {
     console.log('Admin user created: admin@natif.gov.vn / admin123');
   }
 
+  // Expert profile tables
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_profiles (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+      date_of_birth DATE,
+      birth_place VARCHAR(255),
+      gender VARCHAR(10),
+      id_number VARCHAR(50),
+      id_issued_date DATE,
+      id_issued_place VARCHAR(255),
+      hometown VARCHAR(255),
+      nationality VARCHAR(100) DEFAULT 'Việt Nam',
+      address TEXT,
+      province VARCHAR(100),
+      bank_account VARCHAR(50),
+      bank_account_name VARCHAR(255),
+      bank_name VARCHAR(255),
+      bank_branch VARCHAR(255),
+      academic_degree VARCHAR(20),
+      degree_year INTEGER,
+      academic_title VARCHAR(20),
+      title_year INTEGER,
+      expertise_fields TEXT[],
+      avatar_url TEXT,
+      profile_completed BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_profiles');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_education (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      expert_profile_id UUID REFERENCES expert_profiles(id) ON DELETE CASCADE,
+      period VARCHAR(50),
+      education_system VARCHAR(100),
+      institution VARCHAR(500),
+      country VARCHAR(100),
+      major VARCHAR(255),
+      degree VARCHAR(100),
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_education');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_work_history (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      expert_profile_id UUID REFERENCES expert_profiles(id) ON DELETE CASCADE,
+      period_start VARCHAR(20),
+      period_end VARCHAR(20),
+      organization VARCHAR(500),
+      address_phone VARCHAR(500),
+      position VARCHAR(255),
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_work_history');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_research_projects (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      expert_profile_id UUID REFERENCES expert_profiles(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      start_year VARCHAR(20),
+      end_year VARCHAR(20),
+      funding_agency VARCHAR(255),
+      role VARCHAR(100),
+      status VARCHAR(50),
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_research_projects');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_publications (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      expert_profile_id UUID REFERENCES expert_profiles(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      authors TEXT,
+      publisher VARCHAR(500),
+      year INTEGER,
+      publication_type VARCHAR(50),
+      doi VARCHAR(255),
+      issn VARCHAR(50),
+      author_role VARCHAR(100),
+      journal_rank VARCHAR(50),
+      impact_factor DECIMAL(5,3),
+      citations INTEGER DEFAULT 0,
+      notes TEXT,
+      source_url TEXT,
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_publications');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_patents (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      expert_profile_id UUID REFERENCES expert_profiles(id) ON DELETE CASCADE,
+      citation TEXT NOT NULL,
+      author_role VARCHAR(100),
+      protection_type VARCHAR(100),
+      country VARCHAR(100),
+      status VARCHAR(50),
+      reference_link TEXT,
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_patents');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_awards (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      expert_profile_id UUID REFERENCES expert_profiles(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      author_role VARCHAR(100),
+      awarding_body VARCHAR(255),
+      year INTEGER,
+      notes TEXT,
+      reference_link TEXT,
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_awards');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expert_books (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      expert_profile_id UUID REFERENCES expert_profiles(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      link TEXT,
+      authors TEXT,
+      publisher VARCHAR(255),
+      isbn VARCHAR(50),
+      notes TEXT,
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: expert_books');
+
   // Create indexes
   await pool.query('CREATE INDEX IF NOT EXISTS idx_applications_user ON applications(user_id)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_applications_type ON applications(program_type)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_news_category ON news(category)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_news_published ON news(published_at DESC)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_profiles_user ON expert_profiles(user_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_education_profile ON expert_education(expert_profile_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_work_profile ON expert_work_history(expert_profile_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_research_profile ON expert_research_projects(expert_profile_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_publications_profile ON expert_publications(expert_profile_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_patents_profile ON expert_patents(expert_profile_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_awards_profile ON expert_awards(expert_profile_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_books_profile ON expert_books(expert_profile_id)');
 
   console.log('Indexes created');
+
+  // Create expert user if not exists
+  const expertExists = await pool.query("SELECT id FROM users WHERE email = 'expert@natif.gov.vn'");
+  if (!expertExists.rows.length) {
+    const hash = await bcrypt.hash('expert123', 12);
+    await pool.query(
+      `INSERT INTO users (email, password_hash, full_name, role, phone, company) VALUES ($1,$2,$3,$4,$5,$6)`,
+      ['expert@natif.gov.vn', hash, 'Chuyên gia mẫu', 'expert', '0912345678', 'Trường Đại học Bách khoa Hà Nội']
+    );
+    console.log('Expert user created: expert@natif.gov.vn / expert123');
+  }
+
   console.log('Database setup complete!');
   await pool.end();
 }

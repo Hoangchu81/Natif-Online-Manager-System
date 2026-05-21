@@ -3,12 +3,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 
-import { authenticate } from './middleware/auth.js';
+import { authenticate, requireAdmin, requireExpert } from './middleware/auth.js';
 import * as authRoutes from './routes/auth.js';
 import * as applicationRoutes from './routes/applications.js';
 import * as programRoutes from './routes/programs.js';
 import * as newsRoutes from './routes/news.js';
 import * as dashboardRoutes from './routes/dashboard.js';
+import * as expertRoutes from './routes/expert.js';
 
 dotenv.config();
 
@@ -52,6 +53,46 @@ app.get('/api/user/stats', authenticate, dashboardRoutes.getUserStats);
 
 // Protected routes - admin
 app.get('/api/dashboard/stats', authenticate, dashboardRoutes.getDashboardStats);
+
+// Protected routes - expert
+app.get('/api/expert/profile', authenticate, requireExpert, expertRoutes.getProfile);
+app.put('/api/expert/profile', authenticate, requireExpert, expertRoutes.updateProfile);
+app.post('/api/expert/complete', authenticate, requireExpert, expertRoutes.completeProfile);
+
+app.get('/api/expert/education', authenticate, requireExpert, expertRoutes.education.list);
+app.post('/api/expert/education', authenticate, requireExpert, expertRoutes.education.create);
+app.put('/api/expert/education/:id', authenticate, requireExpert, expertRoutes.education.update);
+app.delete('/api/expert/education/:id', authenticate, requireExpert, expertRoutes.education.remove);
+
+app.get('/api/expert/work-history', authenticate, requireExpert, expertRoutes.workHistory.list);
+app.post('/api/expert/work-history', authenticate, requireExpert, expertRoutes.workHistory.create);
+app.put('/api/expert/work-history/:id', authenticate, requireExpert, expertRoutes.workHistory.update);
+app.delete('/api/expert/work-history/:id', authenticate, requireExpert, expertRoutes.workHistory.remove);
+
+app.get('/api/expert/research', authenticate, requireExpert, expertRoutes.research.list);
+app.post('/api/expert/research', authenticate, requireExpert, expertRoutes.research.create);
+app.put('/api/expert/research/:id', authenticate, requireExpert, expertRoutes.research.update);
+app.delete('/api/expert/research/:id', authenticate, requireExpert, expertRoutes.research.remove);
+
+app.get('/api/expert/publications', authenticate, requireExpert, expertRoutes.publications.list);
+app.post('/api/expert/publications', authenticate, requireExpert, expertRoutes.publications.create);
+app.put('/api/expert/publications/:id', authenticate, requireExpert, expertRoutes.publications.update);
+app.delete('/api/expert/publications/:id', authenticate, requireExpert, expertRoutes.publications.remove);
+
+app.get('/api/expert/patents', authenticate, requireExpert, expertRoutes.patents.list);
+app.post('/api/expert/patents', authenticate, requireExpert, expertRoutes.patents.create);
+app.put('/api/expert/patents/:id', authenticate, requireExpert, expertRoutes.patents.update);
+app.delete('/api/expert/patents/:id', authenticate, requireExpert, expertRoutes.patents.remove);
+
+app.get('/api/expert/awards', authenticate, requireExpert, expertRoutes.awards.list);
+app.post('/api/expert/awards', authenticate, requireExpert, expertRoutes.awards.create);
+app.put('/api/expert/awards/:id', authenticate, requireExpert, expertRoutes.awards.update);
+app.delete('/api/expert/awards/:id', authenticate, requireExpert, expertRoutes.awards.remove);
+
+app.get('/api/expert/books', authenticate, requireExpert, expertRoutes.books.list);
+app.post('/api/expert/books', authenticate, requireExpert, expertRoutes.books.create);
+app.put('/api/expert/books/:id', authenticate, requireExpert, expertRoutes.books.update);
+app.delete('/api/expert/books/:id', authenticate, requireExpert, expertRoutes.books.remove);
 
 // 404
 app.use((_req, res) => {

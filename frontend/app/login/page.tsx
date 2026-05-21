@@ -37,6 +37,8 @@ export default function LoginPage() {
       login(data.token, data.user);
       if (data.user.role === 'admin') {
         router.push('/admin');
+      } else if (data.user.role === 'expert') {
+        router.push('/expert');
       } else {
         router.push('/');
       }
