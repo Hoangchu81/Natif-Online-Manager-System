@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
-import { API_BASE, formatDate, PROGRAM_LABELS } from '@/lib/dashboard';
+import { API_BASE, formatDate } from '@/lib/dashboard';
 import { authFetch } from '@/lib/auth';
 import DashboardShell from '@/components/DashboardShell';
 
