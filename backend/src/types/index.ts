@@ -10,6 +10,25 @@ export interface User {
   updated_at: Date;
 }
 
+export type ApplicationStatus =
+  | 'draft'
+  | 'submitted'
+  | 'received'
+  | 'director_review'
+  | 'dept_assigned'
+  | 'preliminary_review'
+  | 'action_taken'
+  | 'supplementary_requested'
+  | 'survey_conducted'
+  | 'council_evaluation'
+  | 'summarized'
+  | 'dept_approved'
+  | 'approved'
+  | 'rejected'
+  | 'returned';
+
+export type ApplicationScenario = 'council' | 'survey' | 'supplementary' | 'reject';
+
 export interface Application {
   id: string;
   user_id: string;
@@ -22,10 +41,56 @@ export interface Application {
   title: string;
   description: string;
   budget_requested: number;
-  status: 'draft' | 'submitted' | 'reviewing' | 'approved' | 'rejected';
+  status: ApplicationStatus;
   submitted_at?: Date;
   reviewed_at?: Date;
   reviewer_notes?: string;
+  created_at: Date;
+  updated_at: Date;
+  // New workflow fields
+  scenario?: ApplicationScenario;
+  dept_head_id?: string;
+  officer_id?: string;
+  proposal_notes?: string;
+  director_decision_notes?: string;
+  survey_completed_at?: Date;
+  supplementary_deadline?: Date;
+}
+
+export interface Council {
+  id: string;
+  application_id: string;
+  name?: string;
+  evaluation_deadline?: Date;
+  formed_at?: Date;
+  created_by?: string;
+  notes?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CouncilMember {
+  id: string;
+  council_id: string;
+  user_id?: string;
+  expert_name?: string;
+  expert_email?: string;
+  role: 'chairman' | 'member' | 'secretary' | 'enterprise_rep';
+  responsibility?: string;
+  created_at: Date;
+}
+
+export interface CouncilMeeting {
+  id: string;
+  council_id: string;
+  application_id: string;
+  meeting_date?: Date;
+  meeting_location?: string;
+  attendees?: string;
+  discussion_summary?: string;
+  recommendation?: 'approve' | 'reject' | 'revise' | 'defer';
+  recommendation_notes?: string;
+  created_by?: string;
   created_at: Date;
   updated_at: Date;
 }

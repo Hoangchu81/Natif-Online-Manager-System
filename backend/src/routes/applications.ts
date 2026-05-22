@@ -1,25 +1,61 @@
 import type { AuthRequest } from '../middleware/auth.js';
 import type { Response } from 'express';
 import pool from '../config/database.js';
-import type { Application } from '../types/index.js';
+
+const STATUS_MAP: Record<string, string[]> = {
+  clerk: ['submitted', 'received', 'director_review'],
+  director: ['director_review', 'dept_assigned', 'preliminary_review', 'action_taken', 'council_evaluation', 'summarized', 'dept_approved'],
+  dept_head: ['dept_assigned', 'preliminary_review', 'action_taken', 'council_evaluation', 'summarized', 'dept_approved'],
+  officer: ['preliminary_review', 'action_taken', 'council_evaluation', 'summarized'],
+  enterprise: [],
+  expert: [],
+  moderator: [],
+};
 
 export async function getApplications(req: AuthRequest, res: Response) {
-  const { status, program_type, page = 1, limit = 10 } = req.query;
-  const offset = (Number(page) - 1) * Number(limit);
+  const { status, program_type, page = 1, limit = 10, my_assignments } = req.query;
+  const pageNum = Math.max(1, Number(page));
+  const limitNum = Math.min(100, Math.max(1, Number(limit)));
+  const offset = (pageNum - 1) * limitNum;
 
   let query = `
-    SELECT a.*, u.full_name as user_name, u.email as user_email
+    SELECT a.*,
+           u.full_name as user_name, u.email as user_email,
+           o.full_name as officer_name,
+           dh.full_name as dept_head_name,
+           COUNT(*) OVER() as _total_count
     FROM applications a
     LEFT JOIN users u ON a.user_id = u.id
+    LEFT JOIN users o ON a.officer_id = o.id
+    LEFT JOIN users dh ON a.dept_head_id = dh.id
     WHERE 1=1
   `;
   const params: (string | number)[] = [];
   let paramIdx = 1;
 
-  if (req.userRole !== 'admin') {
+  // Role-based filtering
+  if (req.userRole === 'clerk') {
+    query += ` AND a.status IN ($${paramIdx++}, $${paramIdx++}, $${paramIdx++})`;
+    params.push('submitted', 'received', 'director_review');
+  } else if (req.userRole === 'director') {
+    query += ` AND a.status IN ($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`;
+    params.push('director_review', 'dept_assigned', 'preliminary_review', 'action_taken', 'council_evaluation', 'summarized', 'dept_approved');
+  } else if (req.userRole === 'dept_head') {
+    query += ` AND (a.dept_head_id = $${paramIdx++} OR a.dept_head_id IS NULL) AND a.status IN ($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`;
+    params.push(req.userId!, 'dept_assigned', 'preliminary_review', 'action_taken', 'council_evaluation', 'summarized', 'dept_approved');
+  } else if (req.userRole === 'officer') {
+    if (my_assignments === 'true') {
+      query += ` AND a.officer_id = $${paramIdx++} AND a.status IN ($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`;
+      params.push(req.userId!, 'preliminary_review', 'action_taken', 'council_evaluation', 'summarized');
+    } else {
+      query += ` AND a.status IN ($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`;
+      params.push('preliminary_review', 'action_taken', 'council_evaluation', 'summarized');
+    }
+  } else if (req.userRole === 'enterprise' || req.userRole === 'expert' || req.userRole === 'moderator') {
     query += ` AND a.user_id = $${paramIdx++}`;
     params.push(req.userId!);
   }
+  // admin sees all
 
   if (status) {
     query += ` AND a.status = $${paramIdx++}`;
@@ -31,25 +67,30 @@ export async function getApplications(req: AuthRequest, res: Response) {
     params.push(program_type as string);
   }
 
-  const countResult = await pool.query(query.replace('SELECT a.*, u.full_name as user_name, u.email as user_email', 'SELECT COUNT(*)'), params);
-  const total = parseInt(countResult.rows[0].count);
-
   query += ` ORDER BY a.created_at DESC LIMIT $${paramIdx++} OFFSET $${paramIdx++}`;
-  params.push(Number(limit), offset);
+  params.push(limitNum, offset);
 
   const result = await pool.query(query, params);
+  const total = result.rows.length > 0 ? parseInt(result.rows[0]._total_count) : 0;
 
   res.json({
-    data: result.rows,
-    pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
+    data: result.rows.map(r => { const { _total_count, ...rest } = r; return rest; }),
+    pagination: { total, page: pageNum, limit: limitNum, pages: Math.ceil(total / limitNum) },
   });
 }
 
 export async function getApplication(req: AuthRequest, res: Response) {
   const { id } = req.params;
   const result = await pool.query(
-    `SELECT a.*, u.full_name as user_name, u.email as user_email
-     FROM applications a LEFT JOIN users u ON a.user_id = u.id WHERE a.id = $1`,
+    `SELECT a.*,
+            u.full_name as user_name, u.email as user_email,
+            o.full_name as officer_name,
+            dh.full_name as dept_head_name
+     FROM applications a
+     LEFT JOIN users u ON a.user_id = u.id
+     LEFT JOIN users o ON a.officer_id = o.id
+     LEFT JOIN users dh ON a.dept_head_id = dh.id
+     WHERE a.id = $1`,
     [id]
   );
 
@@ -58,8 +99,19 @@ export async function getApplication(req: AuthRequest, res: Response) {
   }
 
   const app = result.rows[0];
-  if (req.userRole !== 'admin' && app.user_id !== req.userId) {
-    return res.status(403).json({ error: 'Không có quyền truy cập' });
+  // Role-based access
+  if (req.userRole !== 'admin' && req.userRole !== 'enterprise' && req.userRole !== 'expert' && req.userRole !== 'moderator') {
+    // Staff roles: check assignment
+    if (req.userRole === 'officer' && app.officer_id !== req.userId) {
+      return res.status(403).json({ error: 'Không có quyền truy cập' });
+    }
+    if (req.userRole === 'dept_head' && app.dept_head_id !== req.userId && app.status !== 'dept_assigned') {
+      return res.status(403).json({ error: 'Không có quyền truy cập' });
+    }
+  } else if (req.userRole === 'enterprise' || req.userRole === 'expert' || req.userRole === 'moderator') {
+    if (app.user_id !== req.userId) {
+      return res.status(403).json({ error: 'Không có quyền truy cập' });
+    }
   }
 
   res.json(app);

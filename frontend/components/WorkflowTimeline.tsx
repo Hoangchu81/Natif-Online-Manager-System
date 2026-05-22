@@ -7,21 +7,23 @@ interface WorkflowTimelineProps {
 
 export default function WorkflowTimeline({ currentStatus, className = '' }: WorkflowTimelineProps) {
   const currentIndex = getWorkflowIndex(currentStatus);
-  const isRejected = currentStatus === 'rejected' || currentStatus === 'dept_rejected';
+  const isRejected = currentStatus === 'rejected';
   const isReturned = currentStatus === 'returned';
+  const isTerminal = ['approved', 'rejected', 'returned'].includes(currentStatus);
 
   return (
     <div className={`flex items-center gap-0 ${className}`}>
       {WORKFLOW_STEPS.map((step, idx) => {
         const isPast = idx < currentIndex;
-        const isCurrent = idx === currentIndex;
+        const isCurrent = idx === currentIndex && !isTerminal;
+        const isApproved = currentStatus === 'approved' && idx <= currentIndex;
 
         let dotClass = 'bg-gray-200';
         let lineClass = 'bg-gray-200';
         let textClass = 'text-gray-400';
 
         if (isRejected) {
-          if (idx < currentIndex && idx < 8) {
+          if (idx < currentIndex) {
             dotClass = 'bg-red-400';
             textClass = 'text-red-600';
           } else if (idx === currentIndex) {
@@ -29,17 +31,20 @@ export default function WorkflowTimeline({ currentStatus, className = '' }: Work
             textClass = 'text-red-700 font-semibold';
           }
         } else if (isReturned) {
-          if (idx < currentIndex && idx < 8) {
+          if (idx < currentIndex) {
             dotClass = 'bg-amber-400';
             textClass = 'text-amber-600';
           } else if (idx === currentIndex) {
             dotClass = 'bg-amber-500 ring-4 ring-amber-100';
             textClass = 'text-amber-700 font-semibold';
           }
+        } else if (isApproved) {
+          dotClass = 'bg-green-500';
+          textClass = idx === currentIndex ? 'text-green-700 font-semibold' : 'text-green-600';
         } else {
           if (isPast) {
-            dotClass = 'bg-green-500';
-            textClass = 'text-green-700';
+            dotClass = 'bg-natif-blue/60';
+            textClass = 'text-natif-blue/80';
           }
           if (isCurrent) {
             dotClass = 'bg-natif-blue ring-4 ring-natif-blue/20';
@@ -56,7 +61,7 @@ export default function WorkflowTimeline({ currentStatus, className = '' }: Work
               </span>
             </div>
             {idx < WORKFLOW_STEPS.length - 1 && (
-              <div className={`h-0.5 w-8 sm:w-12 mx-0.5 ${isPast && !isRejected && !isReturned ? 'bg-green-400' : lineClass}`} />
+              <div className={`h-0.5 w-8 sm:w-12 mx-0.5 ${isPast || isApproved ? 'bg-natif-blue/40' : lineClass}`} />
             )}
           </div>
         );
@@ -76,7 +81,7 @@ export function SimpleWorkflowBadge({ currentStatus }: SimpleWorkflowBadgeProps)
   const pct = Math.round((idx / total) * 100);
 
   let barColor = 'bg-natif-blue';
-  if (currentStatus === 'rejected' || currentStatus === 'dept_rejected') barColor = 'bg-red-500';
+  if (currentStatus === 'rejected') barColor = 'bg-red-500';
   if (currentStatus === 'returned') barColor = 'bg-amber-500';
   if (currentStatus === 'approved') barColor = 'bg-green-500';
 
