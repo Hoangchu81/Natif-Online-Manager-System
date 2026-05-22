@@ -3,7 +3,17 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../config/database.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'natif-oms-secret-key-change-in-production';
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
+    return 'natif-oms-secret-key-change-in-production';
+  }
+  return secret;
+}
+const JWT_SECRET = getJwtSecret();
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d';
 
 export async function register(req: Request, res: Response) {

@@ -1,0 +1,30 @@
+= ADR 0002: UI Component Library — shadcn/ui
+:status: Proposed
+:date: 2026-05-22
+:author: HoangCD
+
+== Status
+Proposed
+
+== Context
+Frontend hiện dùng raw Tailwind CSS, không có component library. Code trùng lặp nhiều (bảng, modal, badge, form). Thiếu loading skeletons, toast notifications, charts.
+
+== Decision
+Migrate dần sang shadcn/ui + TanStack Table + Sonner + Recharts.
+
+* shadcn/ui cho: table, dialog, sheet, dropdown-menu, tabs, badge, button, input, label, textarea, select, skeleton, avatar, tooltip, command
+* TanStack Table cho: data tables với pagination, sort, filter
+* Sonner cho: toast notifications (thay alert())
+* Recharts cho: charts và data visualization
+
+== Consequences
+* Component sẽ được copy vào `components/ui/` — ta sở hữu code
+* Giảm code trùng lặp đáng kể
+* Design system nhất quán hơn
+* Cần cài đặt gradual migration (không rewrite toàn bộ một lần)
+
+== Migration Plan
+. Phase 1: Sonner (thay alert()) + Skeleton components
+. Phase 2: TanStack Table wrapper + StatusBadge
+. Phase 3: shadcn/ui Dialog thay modal
+. Phase 4: shadcn/ui Button, Input, Badge thay raw HTML

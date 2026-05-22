@@ -3,13 +3,14 @@ import type { AuthRequest } from '../middleware/auth.js';
 import pool from '../config/database.js';
 
 async function getOrCreateProfile(userId: string) {
-  const existing = await pool.query('SELECT * FROM expert_profiles WHERE user_id = $1', [userId]);
-  if (existing.rows.length) return existing.rows[0];
-  const created = await pool.query(
-    'INSERT INTO expert_profiles (user_id) VALUES ($1) RETURNING *',
+  const result = await pool.query(
+    `INSERT INTO expert_profiles (user_id)
+     VALUES ($1)
+     ON CONFLICT (user_id) DO UPDATE SET user_id = EXCLUDED.user_id
+     RETURNING *`,
     [userId]
   );
-  return created.rows[0];
+  return result.rows[0];
 }
 
 export async function getProfile(req: AuthRequest, res: Response) {

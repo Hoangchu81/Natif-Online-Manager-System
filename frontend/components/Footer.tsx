@@ -52,7 +52,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-3 mb-4">
-              <img src="/natif-logo.svg" alt="NATIF" className="w-10 h-10 object-contain" />
+              <img src="/natif-logo.svg" alt="NATIF" className="w-14 h-14 object-contain" />
               <div>
                 <div className="font-heading font-bold text-white text-base">NATIF</div>
                 <div className="text-[10px] text-gray-500 tracking-wide">Quỹ ĐMCTQG</div>

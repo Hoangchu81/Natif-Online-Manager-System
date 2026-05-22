@@ -1,18 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-const NAV_ITEMS = [
-  { label: 'Trang chủ', href: '/' },
-  { label: 'Giới thiệu', href: '/about' },
-  { label: 'Hỗ trợ & Tài trợ', href: '/programs' },
-  { label: 'Tin tức', href: '/news' },
-  { label: 'Liên hệ', href: '/contact' },
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+
+const FALLBACK_NAV = [
+  { id: '1', label: 'Trang chủ', url: '/', position: 'header', sort_order: 0, is_active: true, icon: '' },
+  { id: '2', label: 'Giới thiệu', url: '/about', position: 'header', sort_order: 1, is_active: true, icon: '' },
+  { id: '3', label: 'Chương trình', url: '/programs', position: 'header', sort_order: 2, is_active: true, icon: '' },
+  { id: '4', label: 'Tin tức', url: '/news', position: 'header', sort_order: 3, is_active: true, icon: '' },
+  { id: '5', label: 'Liên hệ', url: '/contact', position: 'header', sort_order: 4, is_active: true, icon: '' },
 ];
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [navItems, setNavItems] = useState(FALLBACK_NAV);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/menus?position=header`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.data?.length > 0) {
+          setNavItems(data.data);
+        }
+      })
+      .catch(() => {/* use fallback */});
+  }, []);
+
+  const activeNav = navItems
+    .filter(i => i.is_active && i.position === 'header')
+    .sort((a, b) => a.sort_order - b.sort_order);
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-header">
@@ -46,21 +64,23 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <img src="/natif-logo.svg" alt="NATIF" className="w-10 h-10 object-contain" />
+            <img src="/natif-logo.svg" alt="NATIF" className="w-14 h-14 object-contain" />
             <div className="hidden sm:block">
-              <div className="font-heading font-bold text-base text-gray-900 leading-tight">NATIF</div>
+              <div className="font-heading font-bold text-lg text-gray-900 leading-tight">NATIF</div>
               <div className="text-[10px] text-gray-500 leading-tight tracking-wide">Quỹ ĐMCTQG</div>
             </div>
           </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {NAV_ITEMS.map((item) => (
+            {activeNav.map((item) => (
               <Link
-                key={item.href}
-                href={item.href}
+                key={item.id}
+                href={item.url.startsWith('http') ? item.url : item.url}
+                {...(item.url.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}
                 className="nav-link"
               >
+                {item.icon ? <span className="mr-1">{item.icon}</span> : null}
                 {item.label}
               </Link>
             ))}
@@ -93,13 +113,15 @@ export default function Header() {
         {/* Mobile Nav */}
         {mobileOpen && (
           <div className="md:hidden border-t border-gray-100 py-3 space-y-1">
-            {NAV_ITEMS.map((item) => (
+            {activeNav.map((item) => (
               <Link
-                key={item.href}
-                href={item.href}
+                key={item.id}
+                href={item.url}
+                {...(item.url.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}
                 className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-natif-blue rounded-lg"
                 onClick={() => setMobileOpen(false)}
               >
+                {item.icon ? <span className="mr-1">{item.icon}</span> : null}
                 {item.label}
               </Link>
             ))}

@@ -35,3 +35,10 @@ logs/
 
 # Docker
 .docker/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Claude Code (keep project files, ignore personal settings)
+.claude/*.json
+!.claude/settings.json

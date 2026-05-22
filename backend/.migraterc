@@ -1,0 +1,17 @@
+{
+  "databaseUrl": {
+    "host": { "ENV": "DB_HOST" },
+    "port": { "ENV": "DB_PORT" },
+    "database": { "ENV": "DB_NAME" },
+    "user": { "ENV": "DB_USER" },
+    "password": { "ENV": "DB_PASSWORD" }
+  },
+  "migrationsTable": "pgmigrations",
+  "dir": "migrations",
+  "direction": "up",
+  "count": 1,
+  "checkOrder": false,
+  "verbose": true,
+  "decamelize": true,
+  "multipleTransactions": false
+}

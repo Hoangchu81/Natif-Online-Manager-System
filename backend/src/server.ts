@@ -16,6 +16,8 @@ import * as assignmentRoutes from './routes/assignments.js';
 import * as reviewRoutes from './routes/reviews.js';
 import * as workflowRoutes from './routes/workflow.js';
 import * as councilRoutes from './routes/councils.js';
+import * as enterpriseRoutes from './routes/enterprise.js';
+import * as documentRoutes from './routes/documents.js';
 
 import {
   registerSchema, loginSchema, createApplicationSchema,
@@ -76,6 +78,10 @@ app.get('/api/programs/type/:type', programRoutes.getProgramByType);
 app.get('/api/news', newsRoutes.listNews);
 app.get('/api/news/announcements', newsRoutes.listAnnouncements);
 app.get('/api/news/:slug', newsRoutes.getNews);
+app.get('/api/news-categories', newsRoutes.listCategories);
+
+// Public menu
+app.get('/api/menus', newsRoutes.listMenus);
 
 // Protected routes - user
 app.get('/api/profile', authenticate, authRoutes.getProfile);
@@ -145,7 +151,23 @@ app.get('/api/reviews/:id', authenticate, reviewRoutes.getReview);
 app.post('/api/workflow/transition', authenticate, requireRole('admin', 'clerk', 'officer', 'dept_head', 'director', 'enterprise'), validate(workflowTransitionSchema), workflowRoutes.transition);
 app.get('/api/workflow/history/:applicationId', authenticate, workflowRoutes.getHistory);
 
-// Protected routes - councils
+// Protected routes - news CMS (admin & moderator)
+app.get('/api/admin/news', authenticate, requireRole('admin', 'moderator'), newsRoutes.listNewsAdmin);
+app.get('/api/admin/news/:id', authenticate, requireRole('admin', 'moderator'), newsRoutes.getNewsById);
+app.post('/api/admin/news', authenticate, requireRole('admin', 'moderator'), newsRoutes.createNews);
+app.put('/api/admin/news/:id', authenticate, requireRole('admin', 'moderator'), newsRoutes.updateNews);
+app.delete('/api/admin/news/:id', authenticate, requireRole('admin', 'moderator'), newsRoutes.deleteNews);
+
+app.get('/api/admin/news-categories', authenticate, requireRole('admin', 'moderator'), newsRoutes.listCategories);
+app.post('/api/admin/news-categories', authenticate, requireRole('admin', 'moderator'), newsRoutes.createCategory);
+app.put('/api/admin/news-categories/:id', authenticate, requireRole('admin', 'moderator'), newsRoutes.updateCategory);
+app.delete('/api/admin/news-categories/:id', authenticate, requireRole('admin', 'moderator'), newsRoutes.deleteCategory);
+
+app.get('/api/admin/menus', authenticate, requireRole('admin', 'moderator'), newsRoutes.listMenus);
+app.post('/api/admin/menus', authenticate, requireRole('admin', 'moderator'), newsRoutes.createMenuItem);
+app.put('/api/admin/menus/:id', authenticate, requireRole('admin', 'moderator'), newsRoutes.updateMenuItem);
+app.delete('/api/admin/menus/:id', authenticate, requireRole('admin', 'moderator'), newsRoutes.deleteMenuItem);
+app.post('/api/admin/menus/reorder', authenticate, requireRole('admin', 'moderator'), newsRoutes.reorderMenu);
 app.get('/api/councils', authenticate, requireRole('admin', 'dept_head', 'director'), councilRoutes.listCouncils);
 app.get('/api/councils/:id', authenticate, requireRole('admin', 'dept_head', 'director', 'officer'), councilRoutes.getCouncil);
 app.post('/api/councils', authenticate, requireRole('admin', 'dept_head'), councilRoutes.createCouncil);
@@ -158,6 +180,20 @@ app.delete('/api/council-members/:id', authenticate, requireRole('admin', 'dept_
 app.post('/api/councils/:councilId/meetings', authenticate, requireRole('admin', 'dept_head', 'director'), councilRoutes.addCouncilMeeting);
 app.put('/api/council-meetings/:id', authenticate, requireRole('admin', 'dept_head', 'director'), councilRoutes.updateCouncilMeeting);
 app.get('/api/council-meetings', authenticate, requireRole('admin', 'dept_head', 'director', 'officer'), councilRoutes.getCouncilMeetings);
+
+// Protected routes - enterprise profiles
+app.get('/api/enterprise/profile', authenticate, requireRole('admin', 'enterprise', 'clerk'), enterpriseRoutes.getProfile);
+app.post('/api/enterprise/profile', authenticate, requireRole('admin', 'enterprise'), enterpriseRoutes.createProfile);
+app.put('/api/enterprise/profile', authenticate, requireRole('admin', 'enterprise'), enterpriseRoutes.updateProfile);
+app.get('/api/enterprise/profiles', authenticate, requireRole('admin', 'clerk'), enterpriseRoutes.listProfiles);
+app.put('/api/enterprise/profiles/:id/verify', authenticate, requireRole('admin', 'clerk'), enterpriseRoutes.verifyProfile);
+
+// Protected routes - documents
+app.get('/api/documents/checklist/:programType', authenticate, documentRoutes.getChecklist);
+app.post('/api/documents/upload', authenticate, requireRole('admin', 'enterprise'), documentRoutes.uploadDocument);
+app.get('/api/documents', authenticate, requireRole('admin', 'enterprise', 'clerk', 'officer', 'dept_head', 'director'), documentRoutes.listDocuments);
+app.delete('/api/documents/:id', authenticate, requireRole('admin', 'enterprise'), documentRoutes.deleteDocument);
+app.put('/api/documents/:id/review', authenticate, requireRole('admin', 'clerk', 'officer', 'dept_head', 'director'), documentRoutes.reviewDocument);
 
 // 404
 app.use((_req, res) => {

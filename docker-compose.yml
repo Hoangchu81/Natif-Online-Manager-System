@@ -5,9 +5,9 @@ services:
     image: postgres:16-alpine
     container_name: natif_postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: natif_online_manager
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-natif_oms}
     ports:
       - "5432:5432"
     volumes:
@@ -23,35 +23,46 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: natif_backend
+    restart: unless-stopped
     environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/natif_online_manager
+      NODE_ENV: ${NODE_ENV:-development}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-natif_online_manager}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
       PORT: 3001
-      JWT_SECRET: dev_secret_key_change_in_production
-      FRONTEND_URL: http://localhost:3000
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_production}
+      JWT_EXPIRES: ${JWT_EXPIRES:-7d}
+      FRONTEND_URL: ${FRONTEND_URL:-https://oms.natif.vn}
     ports:
       - "3001:3001"
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
-      - ./backend/src:/app/src
-    command: npm run dev
+      - ./backend/src:/app/src:ro
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
     container_name: natif_frontend
+    restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NODE_ENV: ${NODE_ENV:-development}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
     ports:
       - "3000:3000"
     depends_on:
       - backend
-    volumes:
-      - ./frontend/app:/app/app
-      - ./frontend/public:/app/public
 
 volumes:
   postgres_data:

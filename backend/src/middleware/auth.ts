@@ -1,11 +1,22 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'natif-oms-secret-key-change-in-production';
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
+    return 'natif-oms-secret-key-change-in-production';
+  }
+  return secret;
+}
+const JWT_SECRET = getJwtSecret();
 
 export interface AuthRequest extends Request {
   userId?: string;
   userRole?: string;
+  file?: Express.Multer.File;
 }
 
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
@@ -16,7 +27,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
 
   const token = authHeader.slice(7);
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+    const payload = jwt.verify(token, JWT_SECRET) as unknown as { userId: string; role: string };
     req.userId = payload.userId;
     req.userRole = payload.role;
     next();

@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --border: 220 13% 91%;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -227,3 +233,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
 }
+

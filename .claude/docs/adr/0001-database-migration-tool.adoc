@@ -1,0 +1,18 @@
+= ADR 0001: Chưa có Database Migration Tool
+:status: Accepted
+:date: 2026-05-22
+:author: HoangCD
+
+== Status
+Accepted
+
+== Context
+NATIF OMS hiện dùng `setup-db.ts` là one-shot initialization script. Thay đổi schema yêu cầu manual intervention trên production.
+
+== Decision
+Dùng migration tool cho tất cả schema changes. Hiện tại document schema changes trong `.claude/docs/migrations/` dạng markdown.
+
+== Consequences
+* Schema changes cần track trong `/backend/src/migrations/`
+* Production deploy cần chạy migration trước khi start backend mới
+* Tham khảo `/database-migrations` skill để setup proper tool (Drizzle hoặc Prisma Migrate)

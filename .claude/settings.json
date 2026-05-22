@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sI https://oms.techfair.vn/)",
+      "WebFetch(domain:natif.mst.gov.vn)",
+      "Bash(ssh -o StrictHostKeyChecking=no -i \"/Users/hoangcd/Library/CloudStorage/GoogleDrive-hoangcd@bme.edu.vn/Shared drives/Hoangcd.com/88. OpenClaw/00. ACC/vps cbam vigic/ssh-key-2026-05-03.key\" ubuntu@161.33.2.207 \"cd /opt/natif-online-manager && git pull origin main && cd frontend && ./node_modules/.bin/next build 2>&1\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -i \"/Users/hoangcd/Library/CloudStorage/GoogleDrive-hoangcd@bme.edu.vn/Shared drives/Hoangcd.com/88. OpenClaw/00. ACC/vps cbam vigic/ssh-key-2026-05-03.key\" ubuntu@161.33.2.207 \"pm2 restart natif-frontend && sleep 2 && curl -s -o /dev/null -w '%{http_code}' https://oms.techfair.vn/programs/voucher\")",
+      "Bash(curl -sL https://natif.mst.gov.vn/)",
+      "Bash(curl -sL \"https://natif.mst.gov.vn/wp-content/uploads/2022/01/cropped-logotronnatif-300x300.png\" -o /tmp/natif_logo.png)",
+      "Bash(curl -sL \"https://natif.mst.gov.vn/wp-content/uploads/2022/01/logotronnatif.svg\" -o /tmp/natif_logo.svg)",
+      "Bash(ssh -o StrictHostKeyChecking=no -i \"/Users/hoangcd/Library/CloudStorage/GoogleDrive-hoangcd@bme.edu.vn/Shared drives/Hoangcd.com/88. OpenClaw/00. ACC/vps cbam vigic/ssh-key-2026-05-03.key\" ubuntu@161.33.2.207 \"cd /opt/natif-online-manager && git pull origin main && cd frontend && ./node_modules/.bin/next build 2>&1 | command tail -5 && pm2 restart natif-frontend\")",
+      "Bash(curl -sL \"https://natif.mst.gov.vn/chinh-sach-bao-mat/\")",
+      "Bash(curl -sL \"https://natif.mst.gov.vn/\")",
+      "Bash(textutil -convert txt -stdin)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' https://oms.techfair.vn__TRACKED_VAR__)",
+      "WebFetch(domain:github.com)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(xargs -I{} dirname {})",
+      "Bash(ls -la ~/.claude/skills/ 2>/dev/null || echo \"Directory does not exist\")",
+      "Read(//Users/hoangcd/.claude/**)",
+      "Bash(mkdir -p ~/.claude/skills)",
+      "Bash(cp -r /tmp/everything-claude-code/skills/* ~/.claude/skills/)",
+      "Bash(echo '{\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"ls\"}}' | jq -r '.tool_input.command' >> ~/.claude/bash-log.txt && echo \"Hook works - command logged\")",
+      "WebFetch(domain:docs.google.com)",
+      "WebSearch",
+      "WebFetch(domain:vanbanphapluat.co)",
+      "WebFetch(domain:oms.techfair.vn)",
+      "WebFetch(domain:web.archive.org)",
+      "WebFetch(domain:luatvietnam.vn)",
+      "WebFetch(domain:oisp.most.gov.vn)",
+      "Bash(npx tsc *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://oms.techfair.vn/programs/interest_subsidy)",
+      "Bash(curl -s https://oms.techfair.vn/api/)",
+      "Bash(curl -s -X POST https://oms.techfair.vn/api/applications -H 'Content-Type: application/json' -d '{\"program_type\":\"interest_subsidy\",\"company_name\":\"Test\",\"tax_code\":\"0123456789\",\"contact_name\":\"Test\",\"contact_email\":\"test@test.com\",\"contact_phone\":\"0912\",\"title\":\"Test project\",\"description\":\"{}\",\"budget_requested\":100000000}')",
+      "Bash(curl -s -X POST https://oms.techfair.vn/api/applications -H 'Content-Type: application/json' -H 'Authorization: Bearer null' -d '{\"program_type\":\"test\",\"company_name\":\"Test\",\"tax_code\":\"0123456789\",\"contact_name\":\"Test\",\"contact_email\":\"test@test.com\",\"contact_phone\":\"0912\",\"title\":\"Test\",\"description\":\"{}\",\"budget_requested\":100000000}' -w '\\\\nHTTP_STATUS:%{http_code}')",
+      "Bash(curl -s -X OPTIONS https://oms.techfair.vn/api/applications -H 'Origin: https://oms.techfair.vn' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: Authorization, Content-Type' -v)",
+      "Bash(curl -s -X OPTIONS https://oms.techfair.vn/api/applications -H 'Origin: https://oms.techfair.vn' -H 'Access-Control-Request-Method: POST' -v)",
+      "Bash(curl -s -X POST https://oms.techfair.vn/api/applications -H 'Content-Type: application/json' -d '{\"program_type\":\"interest_subsidy\",\"company_name\":\"Công ty TNHH ABC\",\"tax_code\":\"0123456789\",\"contact_name\":\"Nguyễn Văn A\",\"contact_email\":\"test@abc.vn\",\"contact_phone\":\"0912\",\"title\":\"Dự án đổi mới CN 2026\",\"description\":\"{\\\\\"test\\\\\":true}\",\"budget_requested\":1000000000}' -w '\\\\nHTTP: %{http_code}')"
+    ],
+    "additionalDirectories": [
+      "/Users/hoangcd/.claude"
+    ]
+  }
+}

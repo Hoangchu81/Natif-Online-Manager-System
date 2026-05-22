@@ -12,7 +12,7 @@ const adminPool = new Pool({
   password: process.env.DB_PASSWORD || 'postgres',
 });
 
-const dbName = process.env.DB_NAME || 'natif_oms';
+const dbName = process.env.DB_NAME || 'natif_online_manager';
 
 async function setup() {
   console.log('Setting up NATIF OMS database...');

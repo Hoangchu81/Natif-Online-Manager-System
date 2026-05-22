@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
+import { Plus_Jakarta_Sans } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Plus_Jakarta_Sans({subsets:['latin'],variable:'--font-sans',weight:['400','500','600','700','800']});
 
 export const metadata: Metadata = {
   title: {
@@ -16,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className="scroll-smooth">
+    <html lang="vi" className={cn("scroll-smooth", "font-sans", geist.variable)}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
