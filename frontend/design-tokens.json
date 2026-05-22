@@ -1,0 +1,212 @@
+{
+  "$schema": "https://design-tokens.org/schema/v1",
+  "name": "NATIF OMS Design System",
+  "version": "1.0.0",
+  "metadata": {
+    "created": "2026-05-22",
+    "description": "Government technology fund management platform design system"
+  },
+  "color": {
+    "natif": {
+      "primary": {
+        "default": { "value": "#1f3892", "description": "Primary blue — institutional authority" },
+        "hover": { "value": "#163075", "description": "Primary hover state" },
+        "light": { "value": "#2b5ab5", "description": "Secondary blue accents" },
+        "50": { "value": "#eef2ff", "description": "Primary tint background" },
+        "100": { "value": "#dbeafe", "description": "Primary light background" },
+        "500": { "value": "#1f3892", "description": "Primary" },
+        "600": { "value": "#163075", "description": "Primary dark" },
+        "700": { "value": "#102456", "description": "Primary darker" }
+      },
+      "cyan": {
+        "default": { "value": "#48C6EF", "description": "Accent — technology, innovation" },
+        "50": { "value": "#ecfeff", "description": "Cyan tint" },
+        "100": { "value": "#cffafe", "description": "Cyan light" },
+        "500": { "value": "#48C6EF", "description": "Cyan" },
+        "600": { "value": "#0891b2", "description": "Cyan dark" }
+      },
+      "green": {
+        "default": { "value": "#6FD33D", "description": "Success — approved, positive" },
+        "50": { "value": "#dcfce7", "description": "Green tint" },
+        "100": { "value": "#bbf7d0", "description": "Green light" },
+        "500": { "value": "#6FD33D", "description": "Green" },
+        "600": { "value": "#16a34a", "description": "Green dark" }
+      },
+      "dark": {
+        "default": { "value": "#0A1628", "description": "Dark — footer, sidebar" },
+        "900": { "value": "#0A1628", "description": "Dark" },
+        "800": { "value": "#0f172a", "description": "Slate-900" }
+      },
+      "warm": {
+        "bg": { "value": "#F8FAFC", "description": "Warm background — less harsh than pure white" }
+      }
+    },
+    "semantic": {
+      "success": { "value": "#059669", "description": "Success — approved, complete" },
+      "warning": { "value": "#d97706", "description": "Warning — pending, attention" },
+      "danger": { "value": "#dc2626", "description": "Danger — rejected, error" },
+      "info": { "value": "#0891b2", "description": "Info — informational" }
+    },
+    "workflow": {
+      "draft": {
+        "bg": { "value": "#f1f5f9" },
+        "text": { "value": "#475569" },
+        "description": "Inactive, not yet submitted"
+      },
+      "submitted": {
+        "bg": { "value": "#fffbeb" },
+        "text": { "value": "#d97706" },
+        "description": "Awaiting reception"
+      },
+      "received": {
+        "bg": { "value": "#ecfeff" },
+        "text": { "value": "#0891b2" },
+        "description": "Acknowledged by officer"
+      },
+      "assigned": {
+        "bg": { "value": "#eef2ff" },
+        "text": { "value": "#4f46e5" },
+        "description": "Assigned to expert"
+      },
+      "preliminary_review": {
+        "bg": { "value": "#faf5ff" },
+        "text": { "value": "#7c3aed" },
+        "description": "Under preliminary review"
+      },
+      "expert_review": {
+        "bg": { "value": "#fff1f2" },
+        "text": { "value": "#e11d48" },
+        "description": "Expert evaluation in progress"
+      },
+      "summarized": {
+        "bg": { "value": "#fef3c7" },
+        "text": { "value": "#b45309" },
+        "description": "Summary being prepared"
+      },
+      "dept_approved": {
+        "bg": { "value": "#dcfce7" },
+        "text": { "value": "#16a34a" },
+        "description": "Department approved"
+      },
+      "dept_rejected": {
+        "bg": { "value": "#fee2e2" },
+        "text": { "value": "#dc2626" },
+        "description": "Department rejected"
+      },
+      "approved": {
+        "bg": { "value": "#dcfce7" },
+        "text": { "value": "#16a34a" },
+        "description": "Final approved"
+      },
+      "rejected": {
+        "bg": { "value": "#fee2e2" },
+        "text": { "value": "#dc2626" },
+        "description": "Final rejected"
+      }
+    },
+    "role": {
+      "admin": { "bg": "#dbeafe", "text": "#1d4ed8" },
+      "moderator": { "bg": "#e0e7ff", "text": "#4338ca" },
+      "enterprise": { "bg": "#dcfce7", "text": "#16a34a" },
+      "expert": { "bg": "#fef3c7", "text": "#b45309" },
+      "officer": { "bg": "#ecfeff", "text": "#0891b2" },
+      "dept_head": { "bg": "#f3e8ff", "text": "#7c3aed" },
+      "director": { "bg": "#fee2e2", "text": "#dc2626" },
+      "clerk": { "bg": "#f1f5f9", "text": "#475569" }
+    },
+    "neutral": {
+      "white": { "value": "#ffffff" },
+      "gray": {
+        "50": { "value": "#f8fafc" },
+        "100": { "value": "#f1f5f9" },
+        "200": { "value": "#e2e8f0" },
+        "300": { "value": "#cbd5e1" },
+        "400": { "value": "#94a3b8" },
+        "500": { "value": "#64748b" },
+        "600": { "value": "#475569" },
+        "700": { "value": "#334155" },
+        "800": { "value": "#1e293b" },
+        "900": { "value": "#0f172a" }
+      }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "heading": { "value": "'Plus Jakarta Sans', sans-serif" },
+      "body": { "value": "'Plus Jakarta Sans', sans-serif" },
+      "serif": { "value": "'Merriweather', Georgia, serif" }
+    },
+    "fontSize": {
+      "hero": { "value": "clamp(2.5rem, 5vw, 4rem)", "lineHeight": "1.1", "fontWeight": "800" },
+      "display": { "value": "clamp(2rem, 3vw, 3rem)", "lineHeight": "1.15", "fontWeight": "700" },
+      "h1": { "value": "clamp(1.75rem, 2.5vw, 2.25rem)", "lineHeight": "1.2", "fontWeight": "700" },
+      "h2": { "value": "clamp(1.25rem, 2vw, 1.5rem)", "lineHeight": "1.25", "fontWeight": "600" },
+      "h3": { "value": "1.125rem", "lineHeight": "1.3", "fontWeight": "600" },
+      "body": { "value": "1rem", "lineHeight": "1.6", "fontWeight": "400" },
+      "bodyLg": { "value": "1.125rem", "lineHeight": "1.65", "fontWeight": "400" },
+      "sm": { "value": "0.875rem", "lineHeight": "1.5", "fontWeight": "500" },
+      "xs": { "value": "0.75rem", "lineHeight": "1.4", "fontWeight": "500" },
+      "tiny": { "value": "0.6875rem", "lineHeight": "1.3", "fontWeight": "500" }
+    },
+    "letterSpacing": {
+      "tight": { "value": "-0.01em" },
+      "normal": { "value": "0" },
+      "wide": { "value": "0.025em" },
+      "wider": { "value": "0.05em" }
+    }
+  },
+  "spacing": {
+    "1": { "value": "4px" },
+    "2": { "value": "8px" },
+    "3": { "value": "12px" },
+    "4": { "value": "16px" },
+    "5": { "value": "20px" },
+    "6": { "value": "24px" },
+    "8": { "value": "32px" },
+    "10": { "value": "40px" },
+    "12": { "value": "48px" },
+    "16": { "value": "64px" },
+    "section": { "value": "clamp(4rem, 3rem + 5vw, 10rem)" }
+  },
+  "borderRadius": {
+    "sm": { "value": "6px" },
+    "md": { "value": "8px" },
+    "lg": { "value": "12px" },
+    "xl": { "value": "16px" },
+    "full": { "value": "9999px" }
+  },
+  "shadow": {
+    "sm": { "value": "0 1px 2px rgba(0,0,0,0.05)" },
+    "card": { "value": "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)" },
+    "cardHover": { "value": "0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)" },
+    "header": { "value": "0 1px 3px rgba(0,0,0,0.06)" },
+    "modal": { "value": "0 20px 40px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08)" },
+    "dropdown": { "value": "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)" }
+  },
+  "motion": {
+    "duration": {
+      "fast": { "value": "150ms" },
+      "normal": { "value": "200ms" },
+      "slow": { "value": "300ms" }
+    },
+    "easing": {
+      "outExpo": { "value": "cubic-bezier(0.16, 1, 0.3, 1)" },
+      "inOut": { "value": "cubic-bezier(0.4, 0, 0.2, 1)" },
+      "spring": { "value": "cubic-bezier(0.34, 1.56, 0.64, 1)" }
+    }
+  },
+  "breakpoints": {
+    "sm": { "value": "640px" },
+    "md": { "value": "768px" },
+    "lg": { "value": "1024px" },
+    "xl": { "value": "1280px" },
+    "2xl": { "value": "1440px" }
+  },
+  "zIndex": {
+    "dropdown": { "value": "50" },
+    "sticky": { "value": "40" },
+    "header": { "value": "50" },
+    "modal": { "value": "100" },
+    "toast": { "value": "150" }
+  }
+}

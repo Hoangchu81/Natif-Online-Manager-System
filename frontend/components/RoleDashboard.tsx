@@ -25,11 +25,11 @@ export default function RoleDashboard({ title, description, role, actions }: Rol
   if (user?.role !== role && user?.role !== 'admin') return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="h-16 bg-natif-blue text-white flex items-center justify-between px-6 shadow-sm">
+    <div className="min-h-screen bg-natif-warm-bg">
+      <header className="h-16 bg-natif-dark text-white flex items-center justify-between px-6 shadow-header">
         <div>
           <div className="text-lg font-heading font-bold">HỆ THỐNG QUẢN LÝ TRỰC TUYẾN NATIF</div>
-          <div className="text-xs text-white/75">{title}</div>
+          <div className="text-xs text-white/60">{title}</div>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">

@@ -5,11 +5,16 @@ interface StatusBadgeProps {
   className?: string;
 }
 
+/**
+ * Workflow status badge — uses design system badge-workflow classes.
+ * Falls back to badge-gray for unknown statuses.
+ */
 export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
-  const badge = STATUS_BADGE[status] || 'badge-gray';
+  const badgeClass = STATUS_BADGE[status] || 'badge badge-gray';
   const label = STATUS_LABELS[status] || status;
+
   return (
-    <span className={`badge ${badge} ${className}`}>
+    <span className={`${badgeClass} ${className}`}>
       {label}
     </span>
   );

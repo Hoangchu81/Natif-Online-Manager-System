@@ -18,6 +18,7 @@ export const STATUS_LABELS: Record<string, string> = {
   draft: 'Nháp',
   submitted: 'Đã nộp',
   received: 'Đã tiếp nhận',
+  assigned: 'Đã phân công',
   director_review: 'Lãnh đạo xem xét',
   dept_assigned: 'Đã phân phòng',
   preliminary_review: 'Xét sơ bộ',
@@ -25,29 +26,38 @@ export const STATUS_LABELS: Record<string, string> = {
   supplementary_requested: 'Yêu cầu bổ sung',
   survey_conducted: 'Đã khảo sát',
   council_evaluation: 'Hội đồng đánh giá',
+  expert_review: 'Chuyên gia đánh giá',
   summarized: 'Đã tổng hợp',
   dept_approved: 'Phòng duyệt',
+  dept_rejected: 'Phòng từ chối',
   approved: 'Đã phê duyệt',
   rejected: 'Từ chối',
   returned: 'Trả lại',
 };
 
+/**
+ * Workflow status → badge class (matches design-tokens.json workflow colors)
+ * Each state maps to a semantically appropriate color from the design system.
+ */
 export const STATUS_BADGE: Record<string, string> = {
-  draft: 'badge-gray',
-  submitted: 'badge-blue',
-  received: 'badge-indigo',
-  director_review: 'badge-purple',
-  dept_assigned: 'badge-violet',
-  preliminary_review: 'badge-amber',
-  action_taken: 'badge-orange',
-  supplementary_requested: 'badge-yellow',
-  survey_conducted: 'badge-teal',
-  council_evaluation: 'badge-cyan',
-  summarized: 'badge-emerald',
-  dept_approved: 'badge-green',
-  approved: 'badge-green',
-  rejected: 'badge-red',
-  returned: 'badge-yellow',
+  draft: 'badge-workflow badge-draft',
+  submitted: 'badge-workflow badge-submitted',
+  received: 'badge-workflow badge-received',
+  assigned: 'badge-workflow badge-assigned',
+  director_review: 'badge-workflow badge-assigned',
+  dept_assigned: 'badge-workflow badge-assigned',
+  preliminary_review: 'badge-workflow badge-preliminary_review',
+  action_taken: 'badge-workflow badge-preliminary_review',
+  supplementary_requested: 'badge-workflow badge-summarized',
+  survey_conducted: 'badge-workflow badge-received',
+  council_evaluation: 'badge-workflow badge-expert_review',
+  expert_review: 'badge-workflow badge-expert_review',
+  summarized: 'badge-workflow badge-summarized',
+  dept_approved: 'badge-workflow badge-dept_approved',
+  dept_rejected: 'badge-workflow badge-dept_rejected',
+  approved: 'badge-workflow badge-dept_approved',
+  rejected: 'badge-workflow badge-dept_rejected',
+  returned: 'badge-workflow badge-dept_rejected',
 };
 
 export const SCENARIO_LABELS: Record<string, string> = {
@@ -90,15 +100,18 @@ export const ROLE_LABELS: Record<string, string> = {
   enterprise: 'Doanh nghiệp',
 };
 
+/**
+ * User role → badge class (matches design-tokens.json role colors)
+ */
 export const ROLE_COLORS: Record<string, string> = {
-  admin: 'bg-red-100 text-red-700',
-  director: 'bg-purple-100 text-purple-700',
-  dept_head: 'bg-blue-100 text-blue-700',
-  officer: 'bg-cyan-100 text-cyan-700',
-  clerk: 'bg-teal-100 text-teal-700',
-  moderator: 'bg-amber-100 text-amber-700',
-  expert: 'bg-green-100 text-green-700',
-  enterprise: 'bg-gray-100 text-gray-700',
+  admin: 'badge badge-admin',
+  moderator: 'badge badge-moderator',
+  enterprise: 'badge badge-enterprise',
+  expert: 'badge badge-expert',
+  officer: 'badge badge-officer',
+  dept_head: 'badge badge-dept_head',
+  director: 'badge badge-director',
+  clerk: 'badge badge-clerk',
 };
 
 export function formatCurrency(num?: number | null): string {
@@ -134,6 +147,7 @@ export function getWorkflowIndex(status: string): number {
     draft: 0,
     submitted: 1,
     received: 2,
+    assigned: 3,
     director_review: 3,
     dept_assigned: 4,
     preliminary_review: 5,
@@ -141,8 +155,10 @@ export function getWorkflowIndex(status: string): number {
     supplementary_requested: 6,
     survey_conducted: 7,
     council_evaluation: 7,
+    expert_review: 7,
     summarized: 8,
     dept_approved: 9,
+    dept_rejected: 9,
     approved: 10,
     rejected: 10,
     returned: 10,
