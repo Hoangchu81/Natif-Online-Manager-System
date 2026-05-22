@@ -528,6 +528,12 @@ export default function ApplyPage() {
                   ? 'Hồ sơ chi tiết theo mẫu Quỹ NATIF — Nghị định 268/2025/NĐ-CP (Phụ lục II). Điền đầy đủ thông tin theo từng phần.'
                   : 'Hoàn tất hồ sơ theo các bước bên dưới để được xem xét hỗ trợ.'}
               </p>
+              <a href="/apply/dashboard" className="inline-flex items-center gap-1.5 mt-3 text-xs text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Theo dõi hồ sơ đã nộp →
+              </a>
             </div>
           </div>
         </div>
