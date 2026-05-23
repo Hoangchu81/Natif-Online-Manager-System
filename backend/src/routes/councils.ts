@@ -1,6 +1,7 @@
 import type { AuthRequest } from '../middleware/auth.js';
 import type { Response } from 'express';
 import pool from '../config/database.js';
+import { notificationService } from '../services/notification.js';
 
 // List councils (for dept_head to manage their applications' councils)
 export async function listCouncils(req: AuthRequest, res: Response) {
@@ -145,6 +146,36 @@ export async function addCouncilMember(req: AuthRequest, res: Response) {
     [council_id, user_id || null, expert_name || null, expert_email || null, role, responsibility || null]
   );
 
+  // Notify council member
+  const councilInfo = await pool.query<{
+    application_id: string; evaluation_deadline?: Date;
+  }>('SELECT application_id, evaluation_deadline FROM councils WHERE id = $1', [council_id]);
+  const appInfo = await pool.query<{
+    title: string; company_name: string; contact_email: string; contact_name: string;
+  }>('SELECT title, company_name, contact_email, contact_name FROM applications WHERE id = $1',
+    [councilInfo.rows[0]?.application_id]);
+  const chairmanInfo = await pool.query<{ expert_name: string }>(
+    `SELECT cm.expert_name FROM council_members cm
+     WHERE cm.council_id = $1 AND cm.role = 'chairman' LIMIT 1`, [council_id]
+  );
+
+  const memberName = expert_name || (user_id ? 'Thành viên Hội đồng' : 'Thành viên');
+  const memberEmail = expert_email || '';
+  const memberRoleDisplay = role === 'chairman' ? 'Chủ tọa' : role === 'secretary' ? 'Thư ký' : role === 'enterprise_rep' ? 'Đại diện doanh nghiệp' : 'Thành viên';
+
+  const APP_URL = process.env.FRONTEND_URL?.replace(/\/$/, '') || 'https://oms.natif.vn';
+
+  if (memberEmail) {
+    notificationService.send({
+      type: 'council.created',
+      recipients: [{ email: memberEmail, name: memberName }],
+      subject: `[NATIF] Mời tham gia Hội đồng đánh giá - ${appInfo.rows[0]?.title || ''}`,
+      body: `Kính gửi ${memberName},\n\nBạn được mời tham gia Hội đồng đánh giá với vai trò ${memberRoleDisplay}.\n\n• Hồ sơ: ${appInfo.rows[0]?.title || ''}\n• Doanh nghiệp: ${appInfo.rows[0]?.company_name || ''}\n• Thời hạn đánh giá: ${councilInfo.rows[0]?.evaluation_deadline ? new Date(councilInfo.rows[0].evaluation_deadline).toLocaleDateString('vi-VN') : 'Chưa xác định'}\n• Chủ tọa: ${chairmanInfo.rows[0]?.expert_name || 'Chưa xác định'}`,
+      data: { councilId: council_id, applicationId: councilInfo.rows[0]?.application_id },
+      priority: 'HIGH',
+    }).catch(err => console.error('[NOTIFICATION] council member notification failed:', err));
+  }
+
   res.status(201).json(result.rows[0]);
 }
 
@@ -175,6 +206,43 @@ export async function addCouncilMeeting(req: AuthRequest, res: Response) {
     [council_id, application_id, meeting_date || null, meeting_location || null, attendees || null,
      discussion_summary || null, recommendation || null, recommendation_notes || null, req.userId]
   );
+
+  // Notify meeting to all council members + enterprise
+  const meeting = result.rows[0];
+  const appInfo = await pool.query<{
+    title: string; company_name: string; contact_email: string; contact_name: string;
+  }>('SELECT title, company_name, contact_email, contact_name FROM applications WHERE id = $1', [application_id]);
+  const members = await pool.query<{ expert_email?: string; expert_name?: string }>(
+    'SELECT expert_email, expert_name FROM council_members WHERE council_id = $1', [council_id]
+  );
+
+  const APP_URL = process.env.FRONTEND_URL?.replace(/\/$/, '') || 'https://oms.natif.vn';
+  const meetingInfo = meeting.meeting_date
+    ? new Date(meeting.meeting_date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : 'Chưa xác định';
+
+  const recipientEmails = [
+    ...members.rows.filter(m => m.expert_email).map(m => ({ email: m.expert_email!, name: m.expert_name || 'Thành viên' })),
+  ];
+
+  // If enterprise rep is invited, also notify enterprise
+  if (appInfo.rows[0]?.contact_email) {
+    recipientEmails.push({
+      email: appInfo.rows[0].contact_email,
+      name: appInfo.rows[0].contact_name || 'Doanh nghiệp',
+    });
+  }
+
+  for (const recipient of recipientEmails) {
+    notificationService.send({
+      type: 'council.meeting_scheduled',
+      recipients: [recipient],
+      subject: `[NATIF] Thông báo họp Hội đồng - ${appInfo.rows[0]?.title || ''}`,
+      body: `Cuộc họp Hội đồng đánh giá hồ sơ "${appInfo.rows[0]?.title}" đã được lên lịch.\n\n• Ngày họp: ${meetingInfo}\n• Địa điểm: ${meeting.meeting_location || 'Chưa xác định'}\n• Người tham dự: ${meeting.attendees || 'Tất cả thành viên'}`,
+      data: { councilId: council_id, applicationId: application_id, meetingId: meeting.id },
+      priority: 'HIGH',
+    }).catch(err => console.error('[NOTIFICATION] council meeting notification failed:', err));
+  }
 
   res.status(201).json(result.rows[0]);
 }

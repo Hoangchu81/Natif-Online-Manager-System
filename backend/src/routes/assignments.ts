@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import type { AuthRequest } from '../middleware/auth.js';
 import pool from '../config/database.js';
+import { notificationService } from '../services/notification.js';
 
 export async function createAssignment(req: AuthRequest, res: Response) {
   const { application_id, expert_id, deadline } = req.body;
@@ -26,6 +27,29 @@ export async function createAssignment(req: AuthRequest, res: Response) {
      VALUES ($1, $2, $3, $4) RETURNING *`,
     [application_id, expert_id, req.userId, deadline || null]
   );
+
+  // Send notification to expert
+  const expertInfo = await pool.query<{ email: string; full_name: string }>(
+    'SELECT email, full_name FROM users WHERE id = $1', [expert_id]
+  );
+  const appInfo = await pool.query<{ title: string; company_name: string; program_type: string; budget_requested: number }>(
+    'SELECT title, company_name, program_type, budget_requested FROM applications WHERE id = $1', [application_id]
+  );
+  if (expertInfo.rows[0] && appInfo.rows[0]) {
+    notificationService.notifyExpertAssigned(pool, {
+      id: expert_id,
+      email: expertInfo.rows[0].email,
+      full_name: expertInfo.rows[0].full_name,
+    }, {
+      id: application_id,
+      title: appInfo.rows[0].title,
+      company_name: appInfo.rows[0].company_name,
+      program_type: appInfo.rows[0].program_type,
+      budget_requested: appInfo.rows[0].budget_requested,
+      deadline: deadline || undefined,
+    }).catch(err => console.error('[NOTIFICATION] expert assigned failed:', err));
+  }
+
   res.status(201).json(result.rows[0]);
 }
 
@@ -86,6 +110,37 @@ export async function updateAssignment(req: AuthRequest, res: Response) {
     'UPDATE expert_assignments SET status = $1 WHERE id = $2 RETURNING *',
     [status, id]
   );
+
+  // Notify admin/moderator of accept/decline
+  if (status === 'accepted' || status === 'declined') {
+    const assignment = result.rows[0];
+    const expertInfo = await pool.query<{ email: string; full_name: string }>(
+      'SELECT email, full_name FROM users WHERE id = $1', [assignment.expert_id]
+    );
+    const appInfo = await pool.query<{ title: string }>(
+      'SELECT title FROM applications WHERE id = $1', [assignment.application_id]
+    );
+    const admins = await pool.query<{ id: string; email: string; full_name: string }>(
+      `SELECT id, email, full_name FROM users
+       WHERE role IN ('admin', 'moderator') AND is_active = true AND deleted_at IS NULL`
+    );
+
+    for (const admin of admins.rows) {
+      notificationService.send({
+        type: status === 'accepted' ? 'expert.accepted' : 'expert.declined',
+        recipients: [{ id: admin.id, email: admin.email, name: admin.full_name }],
+        subject: status === 'accepted'
+          ? `[NATIF] Chuyên gia chấp nhận đánh giá - ${appInfo.rows[0]?.title || ''}`
+          : `[NATIF] Chuyên gia từ chối đánh giá - ${appInfo.rows[0]?.title || ''}`,
+        body: status === 'accepted'
+          ? `Chuyên gia ${expertInfo.rows[0]?.full_name || ''} đã chấp nhận đánh giá hồ sơ "${appInfo.rows[0]?.title}".`
+          : `Chuyên gia ${expertInfo.rows[0]?.full_name || ''} đã từ chối đánh giá hồ sơ "${appInfo.rows[0]?.title}". Vui lòng gán chuyên gia khác.`,
+        data: { applicationId: assignment.application_id, assignmentId: assignment.id },
+        priority: status === 'declined' ? 'HIGH' : 'MEDIUM',
+      }).catch(err => console.error('[NOTIFICATION] expert accept/decline failed:', err));
+    }
+  }
+
   res.json(result.rows[0]);
 }
 

@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import type { AuthRequest } from '../middleware/auth.js';
 import pool from '../config/database.js';
+import { notificationService } from '../services/notification.js';
 
 export async function createReview(req: AuthRequest, res: Response) {
   const {
@@ -46,6 +47,47 @@ export async function createReview(req: AuthRequest, res: Response) {
     "UPDATE expert_assignments SET status = 'completed' WHERE id = $1",
     [assignment_id]
   );
+
+  // Send notification to dept_head, officer, admin
+  const appInfo = await pool.query<{
+    title: string; company_name: string;
+    dept_head_id?: string; officer_id?: string;
+  }>('SELECT title, company_name, dept_head_id, officer_id FROM applications WHERE id = $1', [application_id]);
+  const expertInfo = await pool.query<{ full_name: string }>(
+    'SELECT full_name FROM users WHERE id = $1', [req.userId]
+  );
+
+  const recipients: Array<{ id: string; email: string; full_name: string; role: string }> = [];
+
+  const staff = await pool.query<{ id: string; email: string; full_name: string; role: string }>(
+    `SELECT id, email, full_name, role FROM users
+     WHERE role IN ('admin', 'dept_head', 'officer', 'moderator')
+       AND is_active = true AND deleted_at IS NULL
+       AND (role = 'admin' OR role = 'moderator'
+         OR id = $1 OR id = $2)`,
+    [appInfo.rows[0]?.dept_head_id || '', appInfo.rows[0]?.officer_id || '']
+  );
+  recipients.push(...staff.rows);
+
+  if (recipients.length > 0) {
+    notificationService.notifyReviewCompleted(pool, {
+      expert_id: req.userId || '',
+      expert_name: expertInfo.rows[0]?.full_name || 'Chuyên gia',
+      application_id: application_id,
+      title: appInfo.rows[0]?.title || '',
+      company_name: appInfo.rows[0]?.company_name || '',
+      overall_score: overall,
+      recommendation: recommendation || '',
+      strengths: strengths,
+      weaknesses: weaknesses,
+      comments: comments,
+      score_innovation: score_innovation,
+      score_feasibility: score_feasibility,
+      score_impact: score_impact,
+      score_budget: score_budget,
+      score_team: score_team,
+    }, recipients).catch(err => console.error('[NOTIFICATION] review completed failed:', err));
+  }
 
   res.status(201).json(result.rows[0]);
 }

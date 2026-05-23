@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import NotificationBell from './NotificationBell';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -67,7 +68,7 @@ export default function Header() {
             <img src="/natif-logo.svg" alt="NATIF" className="w-14 h-14 object-contain" />
             <div className="hidden sm:block">
               <div className="font-heading font-bold text-lg text-gray-900 leading-tight">NATIF</div>
-              <div className="text-[10px] text-gray-500 leading-tight tracking-wide">Quỹ ĐMCTQG</div>
+              <div className="text-[10px] text-gray-500 leading-tight tracking-wide">Quỹ Đổi mới công nghệ quốc gia</div>
             </div>
           </Link>
 
@@ -77,7 +78,7 @@ export default function Header() {
               <Link
                 key={item.id}
                 href={item.url.startsWith('http') ? item.url : item.url}
-                {...(item.url.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}
+                {...(item.url.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 className="nav-link"
               >
                 {item.icon ? <span className="mr-1">{item.icon}</span> : null}
@@ -88,6 +89,7 @@ export default function Header() {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <Link href="/login" className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-natif-blue hover:bg-blue-50 transition-colors">
               Đăng nhập
             </Link>
@@ -117,7 +119,7 @@ export default function Header() {
               <Link
                 key={item.id}
                 href={item.url}
-                {...(item.url.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}
+                {...(item.url.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-natif-blue rounded-lg"
                 onClick={() => setMobileOpen(false)}
               >

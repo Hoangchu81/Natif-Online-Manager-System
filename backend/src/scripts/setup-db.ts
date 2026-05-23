@@ -54,6 +54,9 @@ async function setup() {
       role VARCHAR(20) DEFAULT 'enterprise' CHECK (role IN ('admin','moderator','enterprise','expert','officer','dept_head','director','clerk')),
       phone VARCHAR(50),
       company VARCHAR(255),
+      is_verified BOOLEAN DEFAULT false,
+      verified_at TIMESTAMP,
+      verified_by UUID REFERENCES users(id),
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     )
@@ -116,6 +119,67 @@ async function setup() {
     )
   `);
   console.log('Table: news');
+
+  // Create enterprise_profiles table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS enterprise_profiles (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+      company_name VARCHAR(255) NOT NULL,
+      tax_code VARCHAR(50) NOT NULL,
+      company_address TEXT,
+      district VARCHAR(100),
+      city VARCHAR(100),
+      phone VARCHAR(50),
+      email VARCHAR(255),
+      website VARCHAR(255),
+      company_type VARCHAR(100),
+      founding_date DATE,
+      business_lines TEXT,
+      employee_count INTEGER,
+      charter_capital DECIMAL(15,2),
+      total_assets DECIMAL(15,2),
+      rep_name VARCHAR(255),
+      rep_position VARCHAR(255),
+      rep_id_no VARCHAR(50),
+      rep_id_issued_date DATE,
+      rep_id_issued_place VARCHAR(255),
+      rep_phone VARCHAR(50),
+      rep_email VARCHAR(255),
+      bank_name VARCHAR(255),
+      bank_branch VARCHAR(255),
+      bank_account_no VARCHAR(50),
+      bank_account_name VARCHAR(255),
+      doc_dkkd_url TEXT,
+      verification_status VARCHAR(20) DEFAULT 'submitted' CHECK (verification_status IN ('draft','submitted','verified','rejected')),
+      verification_notes TEXT,
+      verified_at TIMESTAMP,
+      verified_by UUID REFERENCES users(id),
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  console.log('Table: enterprise_profiles');
+
+  // Create application_documents table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS application_documents (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      application_id UUID REFERENCES applications(id) ON DELETE CASCADE,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      document_type VARCHAR(50) NOT NULL,
+      file_url TEXT NOT NULL,
+      file_name VARCHAR(255),
+      file_size INTEGER,
+      mime_type VARCHAR(100),
+      uploaded_at TIMESTAMP DEFAULT NOW(),
+      status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','verified','rejected')),
+      reviewer_notes TEXT,
+      reviewed_by UUID REFERENCES users(id),
+      reviewed_at TIMESTAMP
+    )
+  `);
+  console.log('Table: application_documents');
 
   // Seed programs
   const programsExist = await pool.query('SELECT COUNT(*) FROM programs');
@@ -422,6 +486,10 @@ async function setup() {
   await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_reviews_app ON expert_reviews(application_id)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_expert_reviews_expert ON expert_reviews(expert_id)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_workflow_app ON application_workflow(application_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_enterprise_profiles_user ON enterprise_profiles(user_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_enterprise_profiles_tax ON enterprise_profiles(tax_code)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_application_documents_app ON application_documents(application_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_application_documents_user ON application_documents(user_id)');
 
   console.log('Indexes created');
 

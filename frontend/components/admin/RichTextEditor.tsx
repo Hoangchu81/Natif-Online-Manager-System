@@ -36,17 +36,20 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   const handleImageUpload = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = 'image/jpeg,image/png,image/webp,image/gif';
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file || !editor) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File quá lớn. Tối đa 5MB.');
+        return;
+      }
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('type', 'image');
       try {
-        const token = localStorage.getItem('natif_token');
         const apiUrl = localStorage.getItem('natif_api_url') || process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetch(`${apiUrl}/api/documents/upload`, {
+        const token = localStorage.getItem('natif_token');
+        const res = await fetch(`${apiUrl}/api/admin/upload/news`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData,
@@ -54,9 +57,11 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         const json = await res.json();
         if (json.url) {
           editor.chain().focus().setImage({ src: json.url }).run();
+        } else {
+          alert(json.error || 'Upload thất bại');
         }
       } catch {
-        // silent fail
+        alert('Upload thất bại');
       }
     };
     input.click();

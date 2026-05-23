@@ -25,7 +25,7 @@ export default function Hero() {
             <h1 className="font-heading font-extrabold text-4xl md:text-5xl lg:text-6xl text-gray-900 leading-tight mb-4">
               Quỹ Đổi mới
               <br />
-              <span className="text-gradient-blue">Công nghệ Quốc gia</span>
+              <span className="text-gradient-blue">công nghệ quốc gia</span>
             </h1>
 
             <p className="text-gray-600 text-lg md:text-xl leading-relaxed mb-3 font-serif-body">
@@ -35,7 +35,7 @@ export default function Hero() {
 
             <div className="text-sm text-gray-500 italic mb-8 border-l-2 border-natif-cyan pl-4">
               "Khoa học công nghệ mà hưng thịnh thì quốc gia mới hưng thịnh."
-              <span className="block font-semibold not-italic text-gray-600 mt-1">— Bộ trưởng Nguyễn Mạnh Hùng</span>
+              <span className="block font-semibold not-italic text-gray-600 mt-1">— Nguyên Bộ trưởng Bộ KH&CN Nguyễn Mạnh Hùng</span>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">

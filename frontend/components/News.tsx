@@ -1,44 +1,53 @@
 import Link from 'next/link';
 
-const news = [
-  {
-    slug: 'thu-tuong-khoa-hoc-cong-nghe-la-yeu-to-so-cuong',
-    title: 'Thủ tướng: Khoa học, công nghệ, đổi mới sáng tạo là yếu tố sống còn để hiện thực hóa khát vọng Việt Nam 2045',
-    excerpt: 'Nhấn mạnh tầm quan trọng của khoa học, công nghệ và đổi mới sáng tạo trong phát triển kinh tế - xã hội, Thủ tướng Chính phủ Lê Minh Hưng khẳng định đây là yếu tố then chốt.',
-    category: 'Tin hoạt động',
-    categoryClass: 'badge-blue',
-    date: '19/05/2026',
-    author: 'Le Tuyet',
-    readTime: '4 phút',
-    featured: true,
-  },
-  {
-    slug: 'natif-khao-sat-nhu-cau-ho-tro-2026',
-    title: 'NATIF khảo sát nhu cầu tài trợ, hỗ trợ lãi suất vay và hỗ trợ voucher năm 2026',
-    excerpt: 'Quỹ Đổi mới công nghệ quốc gia thông báo tiến hành khảo sát nhu cầu tài trợ, hỗ trợ lãi suất vay và voucher của doanh nghiệp trong năm 2026.',
-    category: 'Thông báo',
-    categoryClass: 'badge-amber',
-    date: '10/04/2026',
-    author: 'Le Tuyet',
-    readTime: '2 phút',
-    featured: false,
-  },
-  {
-    slug: 'bo-truong-vu-hai-quan-uy-vien-ban-chi-dao',
-    title: 'Bộ trưởng Vũ Hải Quân là Ủy viên Ban Chỉ đạo TW về phát triển KH&CN, ĐMST và chuyển đổi số',
-    excerpt: 'Bộ trưởng Bộ Khoa học và Công nghệ Vũ Hải Quân được bổ nhiệm làm Ủy viên Ban Chỉ đạo Trung ương về phát triển khoa học, công nghệ, đổi mới sáng tạo và chuyển đổi số.',
-    category: 'Tin hoạt động',
-    categoryClass: 'badge-blue',
-    date: '15/05/2026',
-    author: 'Le Tuyet',
-    readTime: '3 phút',
-    featured: false,
-  },
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
 
-export default function News() {
-  const featured = news.find(n => n.featured);
-  const rest = news.filter(n => !n.featured);
+interface Article {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  author: string;
+  published_at: string;
+  thumbnail?: string;
+  is_featured?: boolean;
+  view_count?: number;
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  'hoat-dong': 'badge-blue',
+  'cong-nghe': 'badge-cyan',
+  'thong-bao': 'badge-amber',
+  'tech': 'badge-blue',
+  'activity': 'badge-green',
+  'announcement': 'badge-amber',
+};
+
+async function getNews(): Promise<{ featured: Article | null; recent: Article[] }> {
+  try {
+    const res = await fetch(`${API_BASE}/api/news?limit=4`, { next: { revalidate: 300 } });
+    if (!res.ok) return { featured: null, recent: [] };
+    const data = await res.json();
+    const articles: Article[] = data.data || [];
+    const featured = articles.find(a => a.is_featured) || null;
+    const recent = featured
+      ? articles.filter(a => a.id !== featured.id).slice(0, 3)
+      : articles.slice(0, 3);
+    return { featured, recent };
+  } catch {
+    return { featured: null, recent: [] };
+  }
+}
+
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+export default async function News() {
+  const { featured, recent } = await getNews();
+
+  if (!featured && recent.length === 0) return null;
 
   return (
     <section id="news" className="py-20 bg-white">
@@ -64,17 +73,28 @@ export default function News() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Featured article */}
           {featured && (
-            <Link href={`/news/${featured.slug}`} className="card group lg:row-span-1">
-              <div className="h-48 rounded-lg bg-gradient-to-br from-natif-blue/10 to-natif-cyan/10 mb-5 flex items-center justify-center overflow-hidden">
-                <div className="w-16 h-16 rounded-2xl bg-natif-blue/10 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-natif-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                  </svg>
+            <Link href={`/news/${featured.slug}`} className="card group lg:row-span-1 overflow-hidden">
+              {featured.thumbnail ? (
+                <div className="h-48 -mx-6 -mt-6 mb-5 overflow-hidden">
+                  <img src={featured.thumbnail} alt={featured.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
-              </div>
+              ) : (
+                <div className="h-48 rounded-lg bg-gradient-to-br from-natif-blue/10 to-natif-cyan/10 mb-5 flex items-center justify-center -mx-6 -mt-6 p-6">
+                  <div className="w-16 h-16 rounded-2xl bg-natif-blue/10 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-natif-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                    </svg>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center gap-3 mb-3">
-                <span className={`badge ${featured.categoryClass}`}>{featured.category}</span>
-                <span className="text-xs text-gray-400">{featured.date}</span>
+                <span className={`badge ${CATEGORY_COLORS[featured.category] || 'badge-blue'}`}>
+                  {featured.category}
+                </span>
+                {featured.published_at && (
+                  <span className="text-xs text-gray-400">{formatDate(featured.published_at)}</span>
+                )}
               </div>
               <h3 className="font-heading font-bold text-lg text-gray-900 mb-2 group-hover:text-natif-blue transition-colors leading-snug">
                 {featured.title}
@@ -83,27 +103,47 @@ export default function News() {
                 {featured.excerpt}
               </p>
               <div className="mt-4 flex items-center gap-4 text-xs text-gray-400">
-                <span>{featured.author}</span>
-                <span>{featured.readTime} đọc</span>
+                {featured.author && <span>{featured.author}</span>}
+                {featured.view_count != null && (
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="Claude Opus 4.6 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    {featured.view_count}
+                  </span>
+                )}
               </div>
             </Link>
           )}
 
           {/* Side articles */}
           <div className="space-y-4">
-            {rest.map((item) => (
-              <Link key={item.slug} href={`/news/${item.slug}`} className="card group flex gap-4">
-                <div className="w-24 h-24 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
-                  <div className="w-10 h-10 rounded-lg bg-natif-blue/10 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-natif-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
+            {recent.map((item) => (
+              <Link key={item.id} href={`/news/${item.slug}`}
+                className="card group flex gap-4">
+                {item.thumbnail ? (
+                  <div className="w-24 h-24 shrink-0 rounded-lg overflow-hidden">
+                    <img src={item.thumbnail} alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`badge ${item.categoryClass}`}>{item.category}</span>
-                    <span className="text-xs text-gray-400">{item.date}</span>
+                ) : (
+                  <div className="w-24 h-24 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-natif-blue/10 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-natif-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className={`badge text-xs ${CATEGORY_COLORS[item.category] || 'badge-blue'}`}>
+                      {item.category}
+                    </span>
+                    {item.published_at && (
+                      <span className="text-xs text-gray-400">{formatDate(item.published_at)}</span>
+                    )}
                   </div>
                   <h3 className="font-heading font-semibold text-sm text-gray-900 group-hover:text-natif-blue transition-colors leading-snug line-clamp-2">
                     {item.title}
@@ -111,13 +151,17 @@ export default function News() {
                 </div>
               </Link>
             ))}
-          </div>
-        </div>
 
-        <div className="mt-8 text-center sm:hidden">
-          <Link href="/news" className="btn-secondary text-sm">
-            Xem tất cả tin tức
-          </Link>
+            {recent.length > 0 && (
+              <Link href="/news"
+                className="flex items-center justify-center gap-2 py-3 text-sm text-natif-blue hover:text-natif-blue-light font-medium border border-natif-blue/20 rounded-xl hover:bg-natif-blue/5 transition-colors">
+                Xem tất cả tin tức
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </section>

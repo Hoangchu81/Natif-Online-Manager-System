@@ -49,11 +49,17 @@ const upload = multer({
 
 export const uploadMiddleware = upload.single('file');
 
-// Get document checklist for an application
 export async function getChecklist(req: AuthRequest, res: Response) {
+  const { programType } = req.params;
+  const checklist = DOCUMENT_CHECKLISTS[programType] || DOCUMENT_CHECKLISTS['sponsorship'];
+  res.json({ checklist, program_type: programType });
+}
+
+// Get document checklist for an application (by application ID)
+export async function getChecklistByApp(req: AuthRequest, res: Response) {
   const { applicationId } = req.params;
 
-  const app = await pool.query('SELECT program_type, id FROM applications WHERE id = $1', [applicationId]);
+  const app = await pool.query('SELECT program_type, id, user_id FROM applications WHERE id = $1', [applicationId]);
   if (!app.rows.length) {
     return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
   }
@@ -217,4 +223,39 @@ export async function reviewDocument(req: AuthRequest, res: Response) {
   }
 
   res.json(result.rows[0]);
+}
+
+export async function downloadDocument(req: AuthRequest, res: Response) {
+  const { id } = req.params;
+
+  const result = await pool.query(
+    `SELECT ad.*, a.user_id, a.officer_id, a.dept_head_id
+     FROM application_documents ad
+     JOIN applications a ON ad.application_id = a.id
+     WHERE ad.id = $1`,
+    [id]
+  );
+
+  if (!result.rows.length) {
+    return res.status(404).json({ error: 'Không tìm thấy tài liệu' });
+  }
+
+  const doc = result.rows[0];
+  const staffRoles = ['admin', 'clerk', 'officer', 'dept_head', 'director'];
+  const canAccess =
+    (req.userRole === 'enterprise' && doc.user_id === req.userId) ||
+    staffRoles.includes(req.userRole || '');
+
+  if (!canAccess) {
+    return res.status(403).json({ error: 'Không có quyền truy cập' });
+  }
+
+  const safeFile = path.basename(doc.file_url || '');
+  const filePath = path.join(uploadsDir, safeFile);
+
+  if (!safeFile || !filePath.startsWith(uploadsDir) || !fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File không tồn tại' });
+  }
+
+  res.download(filePath, doc.file_name);
 }

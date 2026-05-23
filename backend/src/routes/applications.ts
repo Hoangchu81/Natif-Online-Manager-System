@@ -1,6 +1,7 @@
 import type { AuthRequest } from '../middleware/auth.js';
 import type { Response } from 'express';
 import pool from '../config/database.js';
+import { notificationService } from '../services/notification.js';
 
 const STATUS_MAP: Record<string, string[]> = {
   clerk: ['submitted', 'received', 'director_review'],
@@ -226,5 +227,22 @@ export async function submitApplication(req: AuthRequest, res: Response) {
     `UPDATE applications SET status = 'submitted', submitted_at = NOW(), updated_at = NOW() WHERE id = $1 RETURNING *`,
     [id]
   );
+
+  // Send notification
+  const app = result.rows[0];
+  notificationService.notifyApplicationSubmitted(pool, {
+    id: app.id,
+    title: app.title,
+    company_name: app.company_name,
+    tax_code: app.tax_code,
+    contact_name: app.contact_name,
+    contact_email: app.contact_email,
+    contact_phone: app.contact_phone,
+    program_type: app.program_type,
+    budget_requested: app.budget_requested,
+    submitted_at: app.submitted_at,
+    user_id: app.user_id,
+  }).catch(err => console.error('[NOTIFICATION] submitApplication failed:', err));
+
   res.json(result.rows[0]);
 }

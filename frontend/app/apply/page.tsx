@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import DocumentUpload from '@/components/DocumentUpload';
 import { authFetch } from '@/lib/auth';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
@@ -238,6 +239,7 @@ export default function ApplyPage() {
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<FormData>(initialForm);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [submittedAppId, setSubmittedAppId] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState('');
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
@@ -431,6 +433,8 @@ export default function ApplyPage() {
         const data = await res.json();
         throw new Error(data.error || 'Gửi hồ sơ thất bại');
       }
+      const result = await res.json();
+      setSubmittedAppId(result.id || '');
       setStatus('success');
     } catch (err: unknown) {
       setStatus('error');
@@ -445,63 +449,86 @@ export default function ApplyPage() {
     return (
       <>
         <Header />
-        <main className="flex-1 flex items-center justify-center py-20 bg-gray-50">
-          <div className="max-w-lg w-full mx-4 text-center">
-            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+        <main className="flex-1 py-16 bg-gray-50">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h1 className="font-heading font-bold text-2xl text-gray-900 mb-2">Nộp hồ sơ thành công!</h1>
+              <p className="text-gray-500">
+                Hồ sơ của bạn đã được ghi nhận. Đội ngũ NATIF sẽ xem xét và phản hồi qua email trong vòng <strong>5 ngày làm việc</strong>.
+              </p>
             </div>
-            <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3">Nộp hồ sơ thành công!</h1>
-            <p className="text-gray-500 mb-8">
-              Hồ sơ của bạn đã được ghi nhận. Đội ngũ NATIF sẽ xem xét và phản hồi qua email trong vòng <strong>5 ngày làm việc</strong>.
-            </p>
-            <div className="bg-white rounded-xl border border-gray-200 p-6 text-left space-y-3 mb-8">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Chương trình</span>
-                <span className="font-medium text-gray-900">{selectedProgram?.label}</span>
+
+            <div className="grid lg:grid-cols-2 gap-6 mb-8">
+              {/* Summary */}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 text-sm space-y-3">
+                <h2 className="font-heading font-semibold text-gray-900 mb-2">Thông tin hồ sơ</h2>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Chương trình</span>
+                  <span className="font-medium text-gray-900">{selectedProgram?.label}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Dự án</span>
+                  <span className="font-medium text-gray-900">{form.project_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Doanh nghiệp</span>
+                  <span className="font-medium text-gray-900">{form.company_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Mã số thuế</span>
+                  <span className="font-medium text-gray-900">{form.tax_code}</span>
+                </div>
+                {isInterestSubsidy && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Ngân hàng</span>
+                      <span className="font-medium text-gray-900">{form.bank_name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Số tiền vay</span>
+                      <span className="font-semibold text-natif-primary">
+                        {form.loan_amount ? formatCurrency(Number(form.loan_amount)) : '—'} VNĐ
+                      </span>
+                    </div>
+                  </>
+                )}
+                <div className="pt-2 border-t border-gray-100 flex justify-between">
+                  <span className="text-gray-500">Căn cứ pháp lý</span>
+                  <span className="font-medium text-gray-900 text-right text-xs">{selectedProgram?.legal}</span>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Dự án</span>
-                <span className="font-medium text-gray-900">{form.project_name}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Doanh nghiệp</span>
-                <span className="font-medium text-gray-900">{form.company_name}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Mã số thuế</span>
-                <span className="font-medium text-gray-900">{form.tax_code}</span>
-              </div>
-              {isInterestSubsidy && (
-                <>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Ngân hàng</span>
-                    <span className="font-medium text-gray-900">{form.bank_name}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Số tiền vay</span>
-                    <span className="font-semibold text-natif-blue">
-                      {form.loan_amount ? formatCurrency(Number(form.loan_amount)) : '—'} VNĐ
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Số dư nợ còn lại</span>
-                    <span className="font-semibold text-natif-blue">
-                      {form.outstanding_balance ? formatCurrency(Number(form.outstanding_balance)) : '—'} VNĐ
-                    </span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Căn cứ pháp lý</span>
-                <span className="font-medium text-gray-900 text-right text-xs">{selectedProgram?.legal}</span>
+
+              {/* Quick actions */}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
+                <h2 className="font-heading font-semibold text-gray-900 mb-2">Hành động tiếp theo</h2>
+                <a href="/apply/dashboard" className="btn-primary w-full justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Theo dõi hồ sơ
+                </a>
+                <a href="/" className="btn-secondary w-full justify-center">Quay về trang chủ</a>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href="/login" className="btn-primary justify-center">Đăng nhập theo dõi hồ sơ</a>
-              <a href="/" className="btn-secondary justify-center">Quay về trang chủ</a>
-            </div>
+
+            {/* Document upload */}
+            {submittedAppId && isInterestSubsidy && (
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="font-heading font-semibold text-lg text-gray-900 mb-1">Tải lên tài liệu đính kèm</h2>
+                <p className="text-gray-500 text-sm mb-5">
+                  Bổ sung tài liệu theo yêu cầu. Bạn có thể upload ngay hoặc bổ sung sau trong mục <a href="/apply/dashboard" className="text-natif-primary hover:underline">Quản lý hồ sơ</a>.
+                </p>
+                <DocumentUpload
+                  applicationId={submittedAppId}
+                  programType={form.program_type}
+                />
+              </div>
+            )}
           </div>
         </main>
         <Footer />

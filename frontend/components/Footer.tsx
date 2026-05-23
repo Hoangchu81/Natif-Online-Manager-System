@@ -124,7 +124,7 @@ export default function Footer() {
             </div>
             <div className="flex flex-col md:items-end justify-center text-xs text-gray-600">
               <p>&copy; {currentYear} Quỹ Đổi mới công nghệ quốc gia (NATIF)</p>
-              <p className="mt-1">Hệ thống Quản lý Trực tuyến v1.0</p>
+              <p className="mt-1">@2026 Hệ thống Quản lý trực tuyến v1.0</p>
             </div>
           </div>
         </div>

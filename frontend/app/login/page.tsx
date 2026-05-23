@@ -43,6 +43,7 @@ export default function LoginPage() {
         clerk: '/clerk',
         dept_head: '/dept-head',
         director: '/director',
+        enterprise: '/apply/dashboard',
       };
       router.push(roleRoutes[data.user.role] || '/');
     } catch {
@@ -74,7 +75,7 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="form-label mb-0">Mật khẩu</label>
-                <a href="#" className="text-xs text-natif-blue hover:underline">Quên mật khẩu?</a>
+                <Link href="/auth/forgot-password" className="text-xs text-natif-blue hover:underline">Quên mật khẩu?</Link>
               </div>
               <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
                 className="form-input" placeholder="••••••••"
