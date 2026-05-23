@@ -7,6 +7,7 @@ import path from 'path';
 import { authenticate, requireAdmin, requireExpert, requireRole } from './middleware/auth.js';
 import { apiLimiter, authLimiter } from './middleware/rateLimiter.js';
 import { validate } from './middleware/validate.js';
+import { notFoundHandler, globalErrorHandler } from './middleware/response.js';
 import * as authRoutes from './routes/auth.js';
 import * as applicationRoutes from './routes/applications.js';
 import * as programRoutes from './routes/programs.js';
@@ -261,22 +262,9 @@ app.get('/api/reports/timeline', authenticate, requireRole('admin', 'director'),
 app.get('/api/reports/sla', authenticate, requireRole('admin', 'director', 'dept_head', 'officer'), asyncRoute(reportRoutes.getSlaTracker));
 app.get('/api/reports/export', authenticate, requireRole('admin', 'director', 'dept_head'), asyncRoute(reportRoutes.exportReport));
 
-// 404
-app.use((_req, res) => {
-  res.status(404).json({ error: 'API endpoint not found' });
-});
-
-// Multer error handler (must be after routes)
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  if (err.message && (err.message.includes('LIMIT_FILE_SIZE') || err.message.includes('Chỉ hỗ trợ'))) {
-    return res.status(400).json({ error: err.message });
-  }
-  console.error('[ERROR]', err.message, err.stack);
-  res.status(500).json({
-    error: 'Lỗi server nội bộ',
-    ...(process.env.NODE_ENV !== 'production' && { detail: err.message }),
-  });
-});
+// 404 + Global error handler (standard envelope)
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`NATIF OMS API running on http://localhost:${PORT}`);
