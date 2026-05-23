@@ -1,6 +1,13 @@
 import type { Response } from 'express';
 import type { AuthRequest } from '../middleware/auth.js';
 import pool from '../config/database.js';
+import * as XLSX from 'xlsx';
+
+function sanitizeCell(val: unknown): string {
+  const str = String(val ?? '');
+  if (/^[=+\-@\t\r]/.test(str)) return `'${str}`;
+  return str;
+}
 
 interface PeriodParams {
   year?: string;
@@ -58,10 +65,10 @@ export async function getIOOI(req: AuthRequest, res: Response) {
   const { rows: inputRows } = await pool.query(`
     SELECT
       COALESCE(SUM(budget_requested) / 1000000000, 0) as total_budget_requested,
-      COUNT(*) as applications_received,
-      COUNT(DISTINCT submitted_at >= $1 AND submitted_at <= $2 OR NULL) as submitted_count
+      COUNT(*) as applications_received
     FROM applications
     WHERE deleted_at IS NULL
+      AND submitted_at >= $1 AND submitted_at <= $2
   `, [period.start, period.end]);
 
   const { rows: expertRows } = await pool.query(`
@@ -295,14 +302,82 @@ export async function exportReport(req: AuthRequest, res: Response) {
     quarter: req.query.quarter as string,
   });
   if (!period) return res.status(400).json({ error: 'Tham số thời gian không hợp lệ' });
-  const format = req.query.format || 'json';
+  const format = (req.query.format as string) || 'xlsx';
+
+  const { rows } = await pool.query(`
+    SELECT
+      a.id, a.title, a.company_name, a.tax_code, a.program_type,
+      a.status, a.budget_requested,
+      a.submitted_at, a.updated_at,
+      CASE WHEN a.status IN ('approved','rejected')
+        THEN EXTRACT(DAY FROM COALESCE(a.reviewed_at, a.updated_at) - a.submitted_at)::int
+        ELSE NULL END as processing_days
+    FROM applications a
+    WHERE a.deleted_at IS NULL
+      AND a.submitted_at >= $1 AND a.submitted_at <= $2
+    ORDER BY a.submitted_at DESC
+  `, [period.start, period.end]);
 
   if (format === 'json') {
-    const iooi = await getIOOI(req, res);
-    return;
+    return res.json({ data: rows, period: period.label });
   }
 
-  res.status(400).json({ error: 'Export format not supported. Use json.' });
+  const wsData = [
+    ['Mã hồ sơ', 'Tên dự án', 'Doanh nghiệp', 'MST', 'Chương trình', 'Trạng thái', 'Ngân sách (VND)', 'Ngày nộp', 'Số ngày xử lý'],
+    ...rows.map((r: Record<string, unknown>) => [
+      sanitizeCell(r.id), sanitizeCell(r.title), sanitizeCell(r.company_name), sanitizeCell(r.tax_code), sanitizeCell(r.program_type),
+      sanitizeCell(r.status), sanitizeCell(r.budget_requested),
+      r.submitted_at ? new Date(r.submitted_at as string).toLocaleDateString('vi-VN') : '',
+      sanitizeCell(r.processing_days ?? ''),
+    ]),
+  ];
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [
+    { wch: 36 }, { wch: 40 }, { wch: 30 }, { wch: 14 }, { wch: 16 },
+    { wch: 14 }, { wch: 18 }, { wch: 14 }, { wch: 12 },
+  ];
+  XLSX.utils.book_append_sheet(wb, ws, 'Hồ sơ');
+
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename="natif-report-${period.label}.xlsx"`);
+  res.send(buf);
 }
 
-export const reportRoutes = { getIOOI, getApplicationReport, getDisbursementReport, getExpertReport, getCouncilReport, getTimelineReport, exportReport };
+export async function getSlaTracker(_req: AuthRequest, res: Response) {
+  const slaLimitDays = 60;
+
+  const { rows } = await pool.query(`
+    SELECT
+      a.id, a.title, a.company_name, a.status, a.program_type,
+      a.submitted_at,
+      EXTRACT(DAY FROM NOW() - a.submitted_at)::int as elapsed_days,
+      $1::int - EXTRACT(DAY FROM NOW() - a.submitted_at)::int as remaining_days
+    FROM applications a
+    WHERE a.deleted_at IS NULL
+      AND a.status NOT IN ('draft', 'approved', 'rejected')
+      AND a.submitted_at IS NOT NULL
+    ORDER BY remaining_days ASC
+  `, [slaLimitDays]);
+
+  const atRisk = rows.filter((r: Record<string, unknown>) => (r.remaining_days as number) <= 7 && (r.remaining_days as number) > 0);
+  const overdue = rows.filter((r: Record<string, unknown>) => (r.remaining_days as number) <= 0);
+  const onTrack = rows.filter((r: Record<string, unknown>) => (r.remaining_days as number) > 7);
+
+  res.json({
+    sla_limit_days: slaLimitDays,
+    total: rows.length,
+    summary: {
+      on_track: onTrack.length,
+      at_risk: atRisk.length,
+      overdue: overdue.length,
+    },
+    overdue,
+    at_risk: atRisk,
+    on_track: onTrack,
+  });
+}
+
+export const reportRoutes = { getIOOI, getApplicationReport, getDisbursementReport, getExpertReport, getCouncilReport, getTimelineReport, exportReport, getSlaTracker };

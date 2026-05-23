@@ -45,6 +45,8 @@ export class SchedulerService {
       this.processReportReminders(),
       this.processOverdueReports(),
       this.cleanupOldNotifications(),
+      this.cleanupOldEmailLogs(),
+      this.cleanupOldAuditLogs(),
     ]);
   }
 
@@ -221,7 +223,6 @@ export class SchedulerService {
 
   async cleanupOldNotifications(): Promise<void> {
     try {
-      // Delete read notifications older than 30 days
       const result = await this.pool.query(
         `DELETE FROM notifications
          WHERE is_read = true AND created_at < NOW() - INTERVAL '30 days'`
@@ -231,6 +232,45 @@ export class SchedulerService {
       }
     } catch (err) {
       console.error('[SCHEDULER] cleanupOldNotifications error', err);
+    }
+  }
+
+  async cleanupOldEmailLogs(): Promise<void> {
+    try {
+      const redactResult = await this.pool.query(
+        `UPDATE email_logs
+         SET body_text = NULL, body_html = NULL, error_message = NULL
+         WHERE created_at < NOW() - INTERVAL '30 days'
+           AND (body_text IS NOT NULL OR body_html IS NOT NULL OR error_message IS NOT NULL)`
+      );
+      const deleteResult = await this.pool.query(
+        `DELETE FROM email_logs
+         WHERE created_at < NOW() - INTERVAL '180 days'`
+      );
+      if ((redactResult.rowCount || 0) > 0 || (deleteResult.rowCount || 0) > 0) {
+        console.log(`[SCHEDULER] Email logs redacted=${redactResult.rowCount || 0}, deleted=${deleteResult.rowCount || 0}`);
+      }
+    } catch (err) {
+      console.error('[SCHEDULER] cleanupOldEmailLogs error', err);
+    }
+  }
+
+  async cleanupOldAuditLogs(): Promise<void> {
+    try {
+      const result = await this.pool.query(
+        `DELETE FROM application_audit_logs
+         WHERE id IN (
+           SELECT id FROM application_audit_logs
+           WHERE created_at < NOW() - INTERVAL '365 days'
+           ORDER BY created_at
+           LIMIT 1000
+         )`
+      );
+      if (result.rowCount && result.rowCount > 0) {
+        console.log(`[SCHEDULER] Cleaned up ${result.rowCount} old audit logs`);
+      }
+    } catch (err) {
+      console.error('[SCHEDULER] cleanupOldAuditLogs error', err);
     }
   }
 }

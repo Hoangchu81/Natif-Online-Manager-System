@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
@@ -40,6 +40,10 @@ schedulerService.setPool(pool);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const asyncRoute = (handler: (req: Request, res: Response) => Promise<unknown>) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(handler(req, res)).catch(next);
+  };
 
 // Static files for uploads
 app.use('/uploads/news', express.static(path.join(process.cwd(), 'uploads', 'news')));
@@ -248,13 +252,14 @@ app.put('/api/admin/users/:id/status', authenticate, requireRole('admin'), userR
 app.delete('/api/admin/users/:id', authenticate, requireRole('admin'), userRoutes.softDelete);
 
 // Reports & IOOI routes
-app.get('/api/reports/iooi', authenticate, requireRole('admin', 'director', 'dept_head'), reportRoutes.getIOOI);
-app.get('/api/reports/applications', authenticate, requireRole('admin', 'director', 'dept_head', 'officer'), reportRoutes.getApplicationReport);
-app.get('/api/reports/disbursements', authenticate, requireRole('admin', 'director'), reportRoutes.getDisbursementReport);
-app.get('/api/reports/experts', authenticate, requireRole('admin', 'director'), reportRoutes.getExpertReport);
-app.get('/api/reports/councils', authenticate, requireRole('admin', 'director', 'dept_head'), reportRoutes.getCouncilReport);
-app.get('/api/reports/timeline', authenticate, requireRole('admin', 'director'), reportRoutes.getTimelineReport);
-app.get('/api/reports/export', authenticate, requireRole('admin', 'director', 'dept_head'), reportRoutes.exportReport);
+app.get('/api/reports/iooi', authenticate, requireRole('admin', 'director', 'dept_head'), asyncRoute(reportRoutes.getIOOI));
+app.get('/api/reports/applications', authenticate, requireRole('admin', 'director', 'dept_head', 'officer'), asyncRoute(reportRoutes.getApplicationReport));
+app.get('/api/reports/disbursements', authenticate, requireRole('admin', 'director'), asyncRoute(reportRoutes.getDisbursementReport));
+app.get('/api/reports/experts', authenticate, requireRole('admin', 'director'), asyncRoute(reportRoutes.getExpertReport));
+app.get('/api/reports/councils', authenticate, requireRole('admin', 'director', 'dept_head'), asyncRoute(reportRoutes.getCouncilReport));
+app.get('/api/reports/timeline', authenticate, requireRole('admin', 'director'), asyncRoute(reportRoutes.getTimelineReport));
+app.get('/api/reports/sla', authenticate, requireRole('admin', 'director', 'dept_head', 'officer'), asyncRoute(reportRoutes.getSlaTracker));
+app.get('/api/reports/export', authenticate, requireRole('admin', 'director', 'dept_head'), asyncRoute(reportRoutes.exportReport));
 
 // 404
 app.use((_req, res) => {
