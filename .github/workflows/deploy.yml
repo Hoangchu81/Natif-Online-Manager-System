@@ -1,0 +1,87 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DEPLOY_PATH: /opt/natif-online-manager
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy code
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'DEPLOY_EOF'
+          set -e
+
+          DEPLOY_PATH="/opt/natif-online-manager"
+
+          # First-time setup: clone if not exists
+          if [ ! -d "$DEPLOY_PATH/.git" ]; then
+            sudo mkdir -p "$DEPLOY_PATH"
+            sudo chown $USER:$USER "$DEPLOY_PATH"
+            git clone https://github.com/Hoangchu81/Natif-Online-Manager-System.git "$DEPLOY_PATH"
+          fi
+
+          cd "$DEPLOY_PATH"
+          git fetch origin main
+          git reset --hard origin/main
+
+          # Backend
+          cd backend
+          npm ci --production=false
+          npm run build
+          cd ..
+
+          # Frontend
+          cd frontend
+          npm ci --production=false
+          npm run build
+          cd ..
+
+          # Restart PM2 services
+          if pm2 describe natif-backend > /dev/null 2>&1; then
+            pm2 restart natif-backend
+          else
+            cd backend
+            pm2 start dist/server.js --name natif-backend --env production
+            cd ..
+          fi
+
+          if pm2 describe natif-frontend > /dev/null 2>&1; then
+            pm2 restart natif-frontend
+          else
+            cd frontend
+            pm2 start npm --name natif-frontend -- start
+            cd ..
+          fi
+
+          pm2 save
+          DEPLOY_EOF
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          curl -sf http://localhost:3001/api/health && echo "Backend OK" || echo "Backend not responding yet"
+          curl -sf http://localhost:3000 > /dev/null && echo "Frontend OK" || echo "Frontend not responding yet"
+          pm2 status
+          EOF
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
