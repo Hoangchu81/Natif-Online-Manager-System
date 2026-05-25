@@ -15,6 +15,7 @@ import * as applicationDetailRoutes from './routes/applicationDetails.js';
 import * as programRoutes from './routes/programs.js';
 import * as newsRoutes from './routes/news.js';
 import * as dashboardRoutes from './routes/dashboard.js';
+import * as personaRoutes from './routes/persona.js';
 import * as expertRoutes from './routes/expert.js';
 import * as assignmentRoutes from './routes/assignments.js';
 import * as reviewRoutes from './routes/reviews.js';
@@ -135,6 +136,8 @@ app.put('/api/applications/:id/details/:kind/:detailId', authenticate, applicati
 app.delete('/api/applications/:id/details/:kind/:detailId', authenticate, applicationDetailRoutes.deleteDetail);
 app.put('/api/applications/:id/details/:kind/bulk', authenticate, applicationDetailRoutes.bulkSaveDetail);
 app.get('/api/user/stats', authenticate, dashboardRoutes.getUserStats);
+app.get('/api/me/portal', authenticate, personaRoutes.getPortalProfile);
+app.get('/api/dashboard/persona', authenticate, personaRoutes.getPersonaDashboard);
 
 // Protected routes - admin
 app.get('/api/dashboard/stats', authenticate, dashboardRoutes.getDashboardStats);
