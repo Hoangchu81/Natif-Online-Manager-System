@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-export default function ActivateAccountPage() {
+function ActivateAccountContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Đang kích hoạt tài khoản...');
@@ -65,5 +65,17 @@ export default function ActivateAccountPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ActivateAccountPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+        <div className="card-flat border border-gray-200 text-center p-6 text-sm text-blue-700">Đang tải...</div>
+      </div>
+    }>
+      <ActivateAccountContent />
+    </Suspense>
   );
 }
