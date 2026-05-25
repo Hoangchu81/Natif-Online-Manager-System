@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
-import { setToken, setUser } from '@/lib/auth';
+import { setToken, setUser, getDashboardPath } from '@/lib/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,17 +35,7 @@ export default function LoginPage() {
       setToken(data.token);
       setUser(data.user);
       login(data.token, data.user);
-      const roleRoutes: Record<string, string> = {
-        admin: '/admin',
-        moderator: '/moderator',
-        expert: '/expert',
-        officer: '/officer',
-        clerk: '/clerk',
-        dept_head: '/dept-head',
-        director: '/director',
-        enterprise: '/apply/dashboard',
-      };
-      router.push(roleRoutes[data.user.role] || '/');
+      router.push(getDashboardPath(data.user));
     } catch {
       setError('Không thể kết nối máy chủ. Vui lòng thử lại.');
       setLoading(false);

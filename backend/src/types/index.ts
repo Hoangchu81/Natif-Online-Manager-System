@@ -1,14 +1,39 @@
+import type { CanonicalRole, LegacyRole, AccountType, AccountStatus } from './roles.js';
+
 export interface User {
   id: string;
   email: string;
   password_hash: string;
   full_name: string;
-  role: 'admin' | 'moderator' | 'enterprise' | 'expert' | 'officer' | 'dept_head' | 'director' | 'clerk';
+  role: LegacyRole;
+  canonical_role: CanonicalRole;
+  legacy_role: LegacyRole;
+  account_type: AccountType;
+  account_status: AccountStatus;
   phone?: string;
   company?: string;
+  organization_name?: string;
+  organization_type?: string;
+  tax_code?: string;
+  department?: string;
+  position_title?: string;
+  invited_by?: string;
+  invited_at?: Date;
+  invitation_token_hash?: string;
+  invitation_expires_at?: Date;
+  invitation_accepted_at?: Date;
+  last_login_at?: Date;
+  terms_accepted_at?: Date;
+  privacy_accepted_at?: Date;
+  email_verified_at?: Date;
+  is_active: boolean;
+  deleted_at?: Date;
+  avatar_url?: string;
   created_at: Date;
   updated_at: Date;
 }
+
+export type { CanonicalRole, LegacyRole, AccountType, AccountStatus } from './roles.js';
 
 export type ApplicationStatus =
   | 'draft'

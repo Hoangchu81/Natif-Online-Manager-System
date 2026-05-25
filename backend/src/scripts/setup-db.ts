@@ -61,6 +61,20 @@ async function setup() {
       updated_at TIMESTAMP DEFAULT NOW()
     )
   `);
+
+  await pool.query(`
+    ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS legacy_role VARCHAR(32),
+      ADD COLUMN IF NOT EXISTS canonical_role VARCHAR(64),
+      ADD COLUMN IF NOT EXISTS account_type VARCHAR(32) DEFAULT 'external',
+      ADD COLUMN IF NOT EXISTS account_status VARCHAR(32) DEFAULT 'active',
+      ADD COLUMN IF NOT EXISTS organization_name VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS department VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS position_title VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS privacy_accepted_at TIMESTAMP
+  `);
   console.log('Table: users');
 
   // Create applications table
@@ -504,24 +518,45 @@ async function setup() {
     console.log('Expert user created: expert@natif.gov.vn');
   }
 
-  // Create role-based seed accounts
-  const seedAccounts = [
-    { email: 'officer@natif.gov.vn', name: 'Chuyên viên Quỹ', role: 'officer' },
-    { email: 'clerk@natif.gov.vn', name: 'Văn thư Quỹ', role: 'clerk' },
-    { email: 'depthead@natif.gov.vn', name: 'Trưởng phòng', role: 'dept_head' },
-    { email: 'director@natif.gov.vn', name: 'Giám đốc Quỹ', role: 'director' },
-    { email: 'moderator@natif.gov.vn', name: 'Moderator', role: 'moderator' },
+  // Create/repair all 17 canonical role accounts
+  const roleAccounts = [
+    { email: 'architect@natif.gov.vn', name: '01. Chief System Architect', legacy: 'admin', canonical: 'chief_system_architect', type: 'system', dept: 'CDH/BMad', pos: 'Chief System Architect' },
+    { email: 'fullstack@natif.gov.vn', name: '02. Full-Stack Developer', legacy: 'admin', canonical: 'fullstack_developer', type: 'system', dept: 'Engineering', pos: 'Full-Stack Developer' },
+    { email: 'devsecops@natif.gov.vn', name: '03. DevSecOps and Security', legacy: 'admin', canonical: 'devsecops_security', type: 'system', dept: 'Security', pos: 'DevSecOps/Security Lead' },
+    { email: 'data-ai@natif.gov.vn', name: '04. Data Scientist and AI', legacy: 'admin', canonical: 'data_ai_scientist', type: 'system', dept: 'Data/AI', pos: 'Data Scientist/AI Lead' },
+    { email: 'executive@natif.gov.vn', name: '05. NATIF Executive', legacy: 'director', canonical: 'natif_executive', type: 'internal', dept: 'Ban lãnh đạo', pos: 'Lãnh đạo NATIF' },
+    { email: 'manager@natif.gov.vn', name: '06. Department Manager', legacy: 'dept_head', canonical: 'department_manager', type: 'internal', dept: 'Phòng nghiệp vụ', pos: 'Lãnh đạo phòng/ban' },
+    { email: 'grants@natif.gov.vn', name: '07. Grants and Orders Specialist', legacy: 'officer', canonical: 'grants_orders_specialist', type: 'internal', dept: 'Tài trợ/Đặt hàng', pos: 'Chuyên viên tài trợ/đặt hàng' },
+    { email: 'voucher@natif.gov.vn', name: '08. Voucher and Startup Specialist', legacy: 'officer', canonical: 'voucher_startup_specialist', type: 'internal', dept: 'Voucher/Startup', pos: 'Chuyên viên voucher/startup' },
+    { email: 'finance@natif.gov.vn', name: '09. Finance and Disbursement', legacy: 'officer', canonical: 'finance_disbursement', type: 'internal', dept: 'Tài chính', pos: 'Tài chính/giải ngân' },
+    { email: 'legal@natif.gov.vn', name: '10. Legal and Risk Control', legacy: 'officer', canonical: 'legal_risk_control', type: 'internal', dept: 'Pháp chế', pos: 'Pháp chế/kiểm soát rủi ro' },
+    { email: 'desk@natif.gov.vn', name: '11. Admin Desk', legacy: 'clerk', canonical: 'admin_desk', type: 'internal', dept: 'Văn thư', pos: 'Văn thư/tiếp nhận' },
+    { email: 'sysadmin@natif.gov.vn', name: '12. IT SysAdmin and Support', legacy: 'admin', canonical: 'it_sysadmin_support', type: 'system', dept: 'CNTT', pos: 'CNTT/hỗ trợ' },
+    { email: 'council@natif.gov.vn', name: '13. Scientific Council', legacy: 'expert', canonical: 'scientific_council', type: 'expert', dept: 'Hội đồng khoa học', pos: 'Thành viên hội đồng KH' },
+    { email: 'independent-expert@natif.gov.vn', name: '14. Independent Expert', legacy: 'expert', canonical: 'independent_expert', type: 'expert', dept: 'Chuyên gia', pos: 'Chuyên gia độc lập' },
+    { email: 'appraiser@natif.gov.vn', name: '15. Financial Appraiser', legacy: 'expert', canonical: 'financial_appraiser', type: 'expert', dept: 'Thẩm định tài chính', pos: 'Thẩm định tài chính' },
+    { email: 'auditor@natif.gov.vn', name: '16. Independent Auditor', legacy: 'expert', canonical: 'independent_auditor', type: 'expert', dept: 'Kiểm toán/Giám sát', pos: 'Kiểm toán/giám sát độc lập' },
+    { email: 'partner@natif.gov.vn', name: '17. External Partner', legacy: 'enterprise', canonical: 'external_partner', type: 'external', dept: 'Đối tác ngoài', pos: 'Doanh nghiệp/đối tác' },
   ];
-  for (const acc of seedAccounts) {
-    const exists = await pool.query('SELECT id FROM users WHERE email = $1', [acc.email]);
-    if (!exists.rows.length) {
-      const hash = await bcrypt.hash('Natif@2026', 12);
-      await pool.query(
-        `INSERT INTO users (email, password_hash, full_name, role, company) VALUES ($1,$2,$3,$4,$5)`,
-        [acc.email, hash, acc.name, acc.role, 'Quỹ Đổi mới công nghệ quốc gia']
-      );
-      console.log(`Created: ${acc.email} (${acc.role})`);
-    }
+  const roleHash = await bcrypt.hash('Natif@2026', 12);
+  for (const acc of roleAccounts) {
+    await pool.query(
+      `INSERT INTO users (email, password_hash, full_name, role, legacy_role, canonical_role, account_type, account_status, phone, company, organization_name, department, position_title, is_verified, verified_at)
+       VALUES ($1,$2,$3,$4,$4,$5,$6,'active','0913060581','Quỹ Đổi mới công nghệ quốc gia',$7,$8,$9,true,NOW())
+       ON CONFLICT (email) DO UPDATE SET
+         role = EXCLUDED.role,
+         legacy_role = EXCLUDED.legacy_role,
+         canonical_role = EXCLUDED.canonical_role,
+         account_type = EXCLUDED.account_type,
+         account_status = 'active',
+         department = EXCLUDED.department,
+         position_title = EXCLUDED.position_title,
+         is_verified = true,
+         verified_at = COALESCE(users.verified_at, NOW()),
+         updated_at = NOW()`,
+      [acc.email, roleHash, acc.name, acc.legacy, acc.canonical, acc.type, acc.type === 'external' ? 'Đối tác NATIF' : 'Quỹ Đổi mới công nghệ quốc gia', acc.dept, acc.pos]
+    );
+    console.log(`Ensured: ${acc.email} (${acc.canonical}) / Natif@2026`);
   }
 
   console.log('Database setup complete!');

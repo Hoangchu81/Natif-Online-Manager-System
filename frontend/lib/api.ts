@@ -337,6 +337,125 @@ export const news = {
   adminDelete: (id: string) => del(`/api/admin/news/${id}`),
 };
 
+// ─── Điều 11 — Thuyết minh & sub-resources ─────────────────────────────────
+
+export interface ThuyetMinh {
+  id: string;
+  application_id: string;
+  tinh_cap_thiet: string;
+  tong_quan_trong_nuoc?: string;
+  tong_quan_quoc_te?: string;
+  tinh_moi_sang_tao: string;
+  muc_tieu_tong_quat: string;
+  muc_tieu_cu_the: string[];
+  hieu_qua_kinh_te?: string;
+  hieu_qua_xa_hoi?: string;
+  hieu_qua_moi_truong?: string;
+  kha_nang_ung_dung?: string;
+  co_so_vat_chat?: string;
+  hop_tac_quoc_te?: string;
+}
+
+export interface NoiDung {
+  id?: string;
+  noi_dung_so: number;
+  ten: string;
+  mo_ta_chi_tiet?: string;
+  phuong_phap?: string;
+  san_pham_du_kien?: string;
+  nguoi_thuc_hien?: string;
+  thoi_gian_tu?: string;
+  thoi_gian_den?: string;
+}
+
+export interface SanPham {
+  id?: string;
+  loai: 'khoa_hoc' | 'dao_tao' | 'ung_dung' | 'shtt';
+  ten: string;
+  chi_tieu_chat_luong?: string;
+  yeu_cau_ky_thuat?: string;
+  so_luong?: number;
+  don_vi?: string;
+  quy_mo?: string;
+  dia_chi_ung_dung?: string;
+}
+
+export interface DuToan {
+  id?: string;
+  hang_muc: 'cong_lao_dong' | 'nguyen_vat_lieu' | 'thiet_bi' | 'cong_tac_phi' | 'hoi_thao' | 'quan_ly' | 'khac';
+  noi_dung: string;
+  don_vi?: string;
+  so_luong?: number;
+  don_gia?: number;
+  thanh_tien: number;
+  nguon_nsnn?: number;
+  nguon_khac?: number;
+  ghi_chu?: string;
+}
+
+export interface NhomNghienCuu {
+  id?: string;
+  ho_ten: string;
+  hoc_vi?: string;
+  chuc_danh?: string;
+  don_vi_cong_tac?: string;
+  vai_tro: string;
+  thoi_gian_tham_gia_thang?: number;
+  so_gio_quy_doi?: number;
+}
+
+export interface TienDo {
+  id?: string;
+  giai_doan: number;
+  noi_dung: string;
+  san_pham?: string;
+  thoi_gian_tu?: string;
+  thoi_gian_den?: string;
+  kinh_phi?: number;
+}
+
+export interface ApplicationFull extends Application {
+  funding_mechanism?: string;
+  task_category?: string;
+  program_id?: string;
+  field_of_study?: string;
+  pi_name?: string;
+  pi_degree?: string;
+  pi_title?: string;
+  pi_organization?: string;
+  pi_phone?: string;
+  pi_email?: string;
+  total_budget?: number;
+  requested_funding?: number;
+  co_funding_amount?: number;
+  co_funding_ratio?: number;
+  implementation_start?: string;
+  implementation_end?: string;
+  implementation_months?: number;
+  decl_no_duplicate_funding?: boolean;
+  decl_self_responsibility?: boolean;
+  decl_proper_use?: boolean;
+  thuyet_minh: ThuyetMinh | null;
+  noi_dung: NoiDung[];
+  san_pham: SanPham[];
+  du_toan: DuToan[];
+  nhom_nghien_cuu: NhomNghienCuu[];
+  tien_do: TienDo[];
+}
+
+export type DetailKind = 'noi_dung' | 'san_pham' | 'du_toan' | 'nhom_nghien_cuu' | 'tien_do';
+
+export const applicationDetails = {
+  getFull: (id: string) => get<ApplicationFull>(`/api/applications/${id}/full`),
+  getThuyetMinh: (id: string) => get<ThuyetMinh | null>(`/api/applications/${id}/thuyet-minh`),
+  upsertThuyetMinh: (id: string, data: Partial<ThuyetMinh>) => put<ThuyetMinh>(`/api/applications/${id}/thuyet-minh`, data),
+  listDetail: <T>(id: string, kind: DetailKind) => get<T[]>(`/api/applications/${id}/details/${kind}`),
+  createDetail: <T>(id: string, kind: DetailKind, data: unknown) => post<T>(`/api/applications/${id}/details/${kind}`, data),
+  updateDetail: <T>(id: string, kind: DetailKind, detailId: string, data: unknown) => put<T>(`/api/applications/${id}/details/${kind}/${detailId}`, data),
+  deleteDetail: (id: string, kind: DetailKind, detailId: string) => del(`/api/applications/${id}/details/${kind}/${detailId}`),
+  bulkSave: <T>(id: string, kind: DetailKind, items: unknown[]) => put<T[]>(`/api/applications/${id}/details/${kind}/bulk`, { items }),
+};
+
 // Export all as api namespace
-const api = { auth, applications, workflow, dashboard, notifications, users, assignments, reviews, news };
+const api = { auth, applications, applicationDetails, workflow, dashboard, notifications, users, assignments, reviews, news };
 export default api;

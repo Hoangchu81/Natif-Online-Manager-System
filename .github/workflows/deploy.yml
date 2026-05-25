@@ -45,12 +45,21 @@ jobs:
           cd backend
           npm ci --production=false
           npm run build
+
+          # Run DB setup (creates DB/tables if first time) + migrations
+          npm run db:setup 2>/dev/null || true
+          npm run db:migrate -- --no-reject-unauthorized 2>/dev/null || true
+
+          # Run 17-account seed migration directly (idempotent)
+          if [ -f migrations/011_seed_17_canonical_accounts.sql ]; then
+            PGPASSWORD="${DB_PASSWORD:-postgres}" psql -h "${DB_HOST:-localhost}" -U "${DB_USER:-postgres}" -d "${DB_NAME:-natif_online_manager}" -f migrations/011_seed_17_canonical_accounts.sql 2>/dev/null || true
+          fi
           cd ..
 
-          # Frontend
+          # Frontend (inject prod API URL at build time)
           cd frontend
           npm ci --production=false
-          npm run build
+          NEXT_PUBLIC_API_URL=https://oms.natif.vn npm run build
           cd ..
 
           # Restart PM2 services

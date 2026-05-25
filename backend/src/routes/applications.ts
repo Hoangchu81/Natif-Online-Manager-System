@@ -122,6 +122,12 @@ export async function createApplication(req: AuthRequest, res: Response) {
   const {
     program_type, company_name, tax_code, contact_name,
     contact_email, contact_phone, title, description, budget_requested,
+    funding_mechanism, task_category, program_id, program_order_document_url,
+    field_of_study, pi_name, pi_degree, pi_title, pi_organization, pi_phone, pi_email,
+    total_budget, requested_funding, co_funding_amount, co_funding_ratio,
+    implementation_start, implementation_end, implementation_months,
+    decl_no_duplicate_funding, decl_self_responsibility, decl_proper_use,
+    legal_basis_decree, legal_basis_article,
   } = req.body;
 
   if (!program_type || !company_name || !tax_code || !contact_name || !contact_email || !title || budget_requested === undefined) {
@@ -133,12 +139,35 @@ export async function createApplication(req: AuthRequest, res: Response) {
     return res.status(400).json({ error: 'Loại chương trình không hợp lệ' });
   }
 
+  // Đặt hàng requires program_id
+  if (funding_mechanism === 'dat_hang' && !program_id) {
+    return res.status(400).json({ error: 'Hồ sơ đặt hàng phải gắn với chương trình (program_id)' });
+  }
+
   const result = await pool.query(
     `INSERT INTO applications
-      (user_id, program_type, company_name, tax_code, contact_name, contact_email, contact_phone, title, description, budget_requested, status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'draft')
+      (user_id, program_type, company_name, tax_code, contact_name, contact_email, contact_phone,
+       title, description, budget_requested, status,
+       funding_mechanism, task_category, program_id, program_order_document_url,
+       field_of_study, pi_name, pi_degree, pi_title, pi_organization, pi_phone, pi_email,
+       total_budget, requested_funding, co_funding_amount, co_funding_ratio,
+       implementation_start, implementation_end, implementation_months,
+       decl_no_duplicate_funding, decl_self_responsibility, decl_proper_use,
+       legal_basis_decree, legal_basis_article)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'draft',
+             $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,
+             $22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33)
      RETURNING *`,
-    [req.userId || null, program_type, company_name, tax_code, contact_name, contact_email, contact_phone || '', title, description || '', budget_requested]
+    [
+      req.userId || null, program_type, company_name, tax_code, contact_name, contact_email, contact_phone || '',
+      title, description || '', budget_requested,
+      funding_mechanism || 'tai_tro', task_category || null, program_id || null, program_order_document_url || null,
+      field_of_study || null, pi_name || null, pi_degree || null, pi_title || null, pi_organization || null, pi_phone || null, pi_email || null,
+      total_budget || null, requested_funding || null, co_funding_amount || null, co_funding_ratio || null,
+      implementation_start || null, implementation_end || null, implementation_months || null,
+      decl_no_duplicate_funding || false, decl_self_responsibility || false, decl_proper_use || false,
+      legal_basis_decree || null, legal_basis_article || null,
+    ]
   );
 
   res.status(201).json(result.rows[0]);
@@ -179,12 +208,26 @@ export async function updateApplication(req: AuthRequest, res: Response) {
   }
 
   if (req.userRole !== 'admin') {
-    const fields = ['program_type', 'company_name', 'tax_code', 'contact_name', 'contact_email', 'contact_phone', 'title', 'description', 'budget_requested'];
+    const fields = [
+      'program_type', 'company_name', 'tax_code', 'contact_name', 'contact_email', 'contact_phone',
+      'title', 'description', 'budget_requested',
+      'funding_mechanism', 'task_category', 'program_id', 'program_order_document_url',
+      'field_of_study', 'pi_name', 'pi_degree', 'pi_title', 'pi_organization', 'pi_phone', 'pi_email',
+      'total_budget', 'requested_funding', 'co_funding_amount', 'co_funding_ratio',
+      'implementation_start', 'implementation_end', 'implementation_months',
+      'decl_no_duplicate_funding', 'decl_self_responsibility', 'decl_proper_use',
+      'legal_basis_decree', 'legal_basis_article',
+    ];
     for (const f of fields) {
       if (req.body[f] !== undefined) {
         query += `, ${f} = $${idx++}`;
         params.push(req.body[f]);
       }
+    }
+    // Record declaration timestamp + IP
+    if (req.body.decl_no_duplicate_funding || req.body.decl_self_responsibility || req.body.decl_proper_use) {
+      query += `, declaration_signed_at = NOW(), declaration_ip_address = $${idx++}::inet`;
+      params.push(req.ip || '0.0.0.0');
     }
   }
 

@@ -2,10 +2,13 @@ import { z } from 'zod';
 
 export const registerSchema = z.object({
   email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự').max(128),
   full_name: z.string().min(2, 'Họ tên phải có ít nhất 2 ký tự').max(255),
-  phone: z.string().max(50).optional(),
-  company: z.string().max(255).optional(),
+  phone: z.string().max(50).optional().or(z.literal('')),
+  company: z.string().max(255).optional().or(z.literal('')),
+  account_type: z.enum(['external', 'expert']).optional(),
+  canonical_role: z.enum(['external_partner', 'independent_expert']).optional(),
+  organization_name: z.string().max(255).optional().or(z.literal('')),
+  tax_code: z.string().max(64).optional().or(z.literal('')),
 });
 
 export const loginSchema = z.object({
@@ -17,6 +20,26 @@ export const createApplicationSchema = z.object({
   program_type: z.enum(['interest_subsidy', 'sponsorship', 'voucher', 'ecosystem'], {
     errorMap: () => ({ message: 'Loại chương trình không hợp lệ' }),
   }),
+  funding_mechanism: z.enum(['tai_tro', 'dat_hang']).optional(),
+  task_category: z.enum(['doi_moi_cong_nghe', 'shtt_nang_suat', 'khoi_nghiep', 'lai_suat', 'voucher']).optional(),
+  program_id: z.string().uuid().optional(),
+  program_order_document_url: z.string().url().optional().or(z.literal('')),
+  field_of_study: z.string().max(100).optional(),
+  pi_name: z.string().max(255).optional(),
+  pi_degree: z.string().max(50).optional(),
+  pi_title: z.string().max(100).optional(),
+  pi_organization: z.string().max(300).optional(),
+  pi_phone: z.string().max(50).optional(),
+  pi_email: z.string().email().optional().or(z.literal('')),
+  total_budget: z.number().nonnegative().optional(),
+  requested_funding: z.number().nonnegative().optional(),
+  co_funding_amount: z.number().nonnegative().optional(),
+  implementation_start: z.string().optional(),
+  implementation_end: z.string().optional(),
+  implementation_months: z.number().int().positive().optional(),
+  decl_no_duplicate_funding: z.boolean().optional(),
+  decl_self_responsibility: z.boolean().optional(),
+  decl_proper_use: z.boolean().optional(),
   company_name: z.string().min(2).max(255),
   tax_code: z.string().min(5).max(50),
   contact_name: z.string().min(2).max(255),
@@ -25,6 +48,9 @@ export const createApplicationSchema = z.object({
   title: z.string().min(5).max(500),
   description: z.string().max(10000).optional(),
   budget_requested: z.number().positive('Ngân sách phải lớn hơn 0'),
+}).refine(data => data.funding_mechanism !== 'dat_hang' || Boolean(data.program_id), {
+  message: 'Hồ sơ đặt hàng phải gắn với chương trình',
+  path: ['program_id'],
 });
 
 export const createReviewSchema = z.object({

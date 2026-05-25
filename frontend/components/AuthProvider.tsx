@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getToken, getUser, setToken, setUser, clearAuth, type AuthUser } from '@/lib/auth';
+import { getToken, getUser, setToken, setUser, clearAuth, isAdmin, isExpertRole, isInternal } from '@/lib/auth';
+import type { AuthUser, CanonicalRole } from '@/lib/auth';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -10,7 +11,9 @@ interface AuthContextValue {
   logout: () => void;
   isAdmin: boolean;
   isExpert: boolean;
+  isInternal: boolean;
   isLoading: boolean;
+  canonicalRole: CanonicalRole | null;
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -20,7 +23,9 @@ const AuthContext = createContext<AuthContextValue>({
   logout: () => {},
   isAdmin: false,
   isExpert: false,
+  isInternal: false,
   isLoading: true,
+  canonicalRole: null,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -50,7 +55,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAdmin: user?.role === 'admin', isExpert: user?.role === 'expert', isLoading }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      login,
+      logout,
+      isAdmin: isAdmin(),
+      isExpert: isExpertRole(),
+      isInternal: isInternal(),
+      isLoading,
+      canonicalRole: user?.canonical_role || null,
+    }}>
       {children}
     </AuthContext.Provider>
   );

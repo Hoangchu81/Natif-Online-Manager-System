@@ -10,6 +10,7 @@ import { validate } from './middleware/validate.js';
 import { notFoundHandler, globalErrorHandler } from './middleware/response.js';
 import * as authRoutes from './routes/auth.js';
 import * as applicationRoutes from './routes/applications.js';
+import * as applicationDetailRoutes from './routes/applicationDetails.js';
 import * as programRoutes from './routes/programs.js';
 import * as newsRoutes from './routes/news.js';
 import * as dashboardRoutes from './routes/dashboard.js';
@@ -96,6 +97,8 @@ app.post('/api/auth/register', validate(registerSchema), authRoutes.register);
 app.post('/api/auth/login', validate(loginSchema), authRoutes.login);
 app.post('/api/auth/forgot-password', authRoutes.forgotPassword);
 app.post('/api/auth/reset-password', authRoutes.resetPassword);
+app.get('/api/auth/activate', authRoutes.activateAccount);
+app.post('/api/auth/resend-activation', authRoutes.resendActivation);
 app.get('/api/auth/verify-email', authRoutes.verifyEmail);
 app.get('/api/programs', programRoutes.listPrograms);
 app.get('/api/programs/:slug', programRoutes.getProgram);
@@ -109,6 +112,7 @@ app.get('/api/news-categories', newsRoutes.listCategories);
 
 // Public menu
 app.get('/api/menus', newsRoutes.listMenus);
+app.get('/api/roles', userRoutes.getRoleLabels);
 
 // Protected routes - user
 app.get('/api/profile', authenticate, authRoutes.getProfile);
@@ -121,6 +125,14 @@ app.post('/api/applications', authenticate, validate(createApplicationSchema), a
 app.put('/api/applications/:id', authenticate, applicationRoutes.updateApplication);
 app.delete('/api/applications/:id', authenticate, applicationRoutes.deleteApplication);
 app.post('/api/applications/:id/submit', authenticate, applicationRoutes.submitApplication);
+app.get('/api/applications/:id/full', authenticate, applicationDetailRoutes.getApplicationFull);
+app.get('/api/applications/:id/thuyet-minh', authenticate, applicationDetailRoutes.getThuyetMinh);
+app.put('/api/applications/:id/thuyet-minh', authenticate, applicationDetailRoutes.upsertThuyetMinh);
+app.get('/api/applications/:id/details/:kind', authenticate, applicationDetailRoutes.listDetail);
+app.post('/api/applications/:id/details/:kind', authenticate, applicationDetailRoutes.createDetail);
+app.put('/api/applications/:id/details/:kind/:detailId', authenticate, applicationDetailRoutes.updateDetail);
+app.delete('/api/applications/:id/details/:kind/:detailId', authenticate, applicationDetailRoutes.deleteDetail);
+app.put('/api/applications/:id/details/:kind/bulk', authenticate, applicationDetailRoutes.bulkSaveDetail);
 app.get('/api/user/stats', authenticate, dashboardRoutes.getUserStats);
 
 // Protected routes - admin
@@ -246,11 +258,11 @@ app.get('/api/notifications', authenticate, notificationRoutes.listNotifications
 app.put('/api/notifications/:id/read', authenticate, notificationRoutes.markRead);
 
 // User management routes (admin)
-app.get('/api/admin/users', authenticate, requireRole('admin'), userRoutes.listUsers);
-app.get('/api/admin/users/:id', authenticate, requireRole('admin', 'director'), userRoutes.getUser);
-app.put('/api/admin/users/:id/role', authenticate, requireRole('admin'), userRoutes.changeRole);
-app.put('/api/admin/users/:id/status', authenticate, requireRole('admin'), userRoutes.toggleStatus);
-app.delete('/api/admin/users/:id', authenticate, requireRole('admin'), userRoutes.softDelete);
+app.get('/api/admin/users', authenticate, requireAdmin, userRoutes.listUsers);
+app.get('/api/admin/users/:id', authenticate, requireRole('admin', 'director', 'chief_system_architect', 'it_sysadmin_support', 'natif_executive'), userRoutes.getUser);
+app.put('/api/admin/users/:id/role', authenticate, requireAdmin, userRoutes.changeRole);
+app.put('/api/admin/users/:id/status', authenticate, requireAdmin, userRoutes.toggleStatus);
+app.delete('/api/admin/users/:id', authenticate, requireAdmin, userRoutes.softDelete);
 
 // Reports & IOOI routes
 app.get('/api/reports/iooi', authenticate, requireRole('admin', 'director', 'dept_head'), asyncRoute(reportRoutes.getIOOI));
