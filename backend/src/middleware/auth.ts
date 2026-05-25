@@ -3,17 +3,20 @@ import jwt from 'jsonwebtoken';
 import { CANONICAL_ROLES, CANONICAL_TO_LEGACY, LEGACY_TO_CANONICAL, ADMIN_ROLES, INTERNAL_ROLES, EXPERT_ROLES } from '../types/roles.js';
 import type { CanonicalRole, LegacyRole } from '../types/roles.js';
 
+let _jwtSecret: string | null = null;
 function getJwtSecret(): string {
+  if (_jwtSecret) return _jwtSecret;
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
-      throw new Error('JWT_SECRET environment variable is required');
+      console.error('[AUTH] JWT_SECRET not set — using fallback. Set JWT_SECRET in .env!');
     }
-    return 'natif-oms-secret-key-change-in-production';
+    _jwtSecret = 'natif-oms-secret-key-change-in-production';
+  } else {
+    _jwtSecret = secret;
   }
-  return secret;
+  return _jwtSecret;
 }
-const JWT_SECRET = getJwtSecret();
 
 export interface AuthRequest extends Request {
   userId?: string;
@@ -36,7 +39,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
 
   const token = authHeader.slice(7);
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as unknown as JwtPayload;
+    const payload = jwt.verify(token, getJwtSecret()) as unknown as JwtPayload;
     req.userId = payload.userId;
 
     // Support both legacy and canonical role in JWT

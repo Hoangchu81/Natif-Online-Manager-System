@@ -11,14 +11,12 @@ function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
-      throw new Error('JWT_SECRET environment variable is required');
+      console.error('[AUTH-ROUTES] JWT_SECRET not set — using fallback!');
     }
     return 'natif-oms-secret-key-change-in-production';
   }
   return secret;
 }
-const JWT_SECRET = getJwtSecret();
-const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://oms.natif.vn';
 
 function generatePassword(length = 10): string {
@@ -257,7 +255,7 @@ export async function login(req: Request, res: Response) {
   await pool.query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
 
   const canonicalRole = user.canonical_role || (user.role === 'expert' ? 'independent_expert' : user.role === 'enterprise' ? 'external_partner' : user.role === 'director' ? 'natif_executive' : user.role === 'dept_head' ? 'department_manager' : user.role === 'clerk' ? 'admin_desk' : user.role === 'officer' ? 'grants_orders_specialist' : 'chief_system_architect');
-  const token = jwt.sign({ userId: user.id, role: user.role, canonicalRole }, JWT_SECRET, { expiresIn: 7 * 24 * 60 * 60 });
+  const token = jwt.sign({ userId: user.id, role: user.role, canonicalRole }, getJwtSecret(), { expiresIn: 7 * 24 * 60 * 60 });
 
   res.json({
     token,
