@@ -35,6 +35,7 @@ import {
 import pool from './config/database.js';
 import { notificationService } from './services/notification.js';
 import { schedulerService } from './services/scheduler.js';
+import { emailService } from './services/email.js';
 
 dotenv.config();
 
@@ -92,6 +93,10 @@ app.use(express.urlencoded({ extended: true }));
 // Health
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString(), service: 'NATIF OMS API' });
+});
+
+app.get('/api/health/email', authenticate, requireAdmin, (_req, res) => {
+  res.json({ email: emailService.getHealthInfo() });
 });
 
 // Public routes
